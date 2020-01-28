@@ -1,4 +1,4 @@
-# Beanstalk
+# Beanstalk - ECS
 
 ## Comment from reddit
 I wouldn’t do that. If you deploy an elastic beanstalk resource using Cloudformation then the elastic beanstalk service will automatically create that nested stack for you. If you try and do it manually then you won’t be using beanstalk and won’t get the benefits of the management console.
