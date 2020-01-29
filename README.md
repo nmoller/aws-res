@@ -56,8 +56,8 @@ Actually, the whole basic structure you need is here: https://docs.aws.amazon.co
 
 # Cloudformation templates
 
-https://github.com/smalltide/aws-cloudformation-master
-https://github.com/PacktPublishing/AWS-CloudFormation-Master-Class
+- https://github.com/smalltide/aws-cloudformation-master
+- https://github.com/PacktPublishing/AWS-CloudFormation-Master-Class
 
 ## Moodle référence
 Ce qui ça donne le create stack:
