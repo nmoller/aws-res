@@ -1,4 +1,21 @@
+# AWS cli
+```
+docker run --rm -tiv $HOME/.aws:/root/.aws mikesir87/aws-cli aws --help
+
+docker run --rm -tiv $HOME/.aws:/root/.aws mikesir87/aws-cli aws elasticbeanstalk help
+
+
+# Pour lire un fichier 
+docker run --rm -tiv $HOME/.aws:/root/.aws \
+-v $(pwd):/opt/templates --workdir /opt/templates  \
+mikesir87/aws-cli \
+aws cloudformation validate-template --template-body file://00-master.yaml
+
+```
+
 # Beanstalk - ECS
+
+![ECS overview](assets/cluster-ecs.png)
 
 ## Comment from reddit
 I wouldn’t do that. If you deploy an elastic beanstalk resource using Cloudformation then the elastic beanstalk service will automatically create that nested stack for you. If you try and do it manually then you won’t be using beanstalk and won’t get the benefits of the management console.
@@ -38,6 +55,9 @@ Actually, the whole basic structure you need is here: https://docs.aws.amazon.co
 - https://danielneis.github.io/how-to-use-moodle-27/chapter4.html
 
 # Cloudformation templates
+
+https://github.com/smalltide/aws-cloudformation-master
+https://github.com/PacktPublishing/AWS-CloudFormation-Master-Class
 
 ## Moodle référence
 Ce qui ça donne le create stack:
