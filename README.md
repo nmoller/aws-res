@@ -39,6 +39,31 @@ Actually, the whole basic structure you need is here: https://docs.aws.amazon.co
 
 # Cloudformation templates
 
+## Moodle référence
+Ce qui ça donne le create stack:
+```
+Stack description
+
+Stack to deploy a highly available, elastic, scalable Moodle environment. This master stack launches multiple nested stacks for different tiers. !! This can only be run in certain AWS Regions - 'us-east-1', 'us-east-2', 'us-west-2', 'eu-west-1'.
+
+Estimate cost not available
+
+###########################################
+
+The following resource(s) require capabilities: [AWS::CloudFormation::Stack]
+
+This template contains Identity and Access Management (IAM) resources. Check that you want to create each of these resources and that they have the minimum required permissions. In addition, they have custom names. Check that the custom names are unique within your AWS account.Learn more
+
+For this template, AWS CloudFormation might require an unrecognized capability: CAPABILITY_AUTO_EXPAND. Check the capabilities of these resources.
+```
+
+## Linter
+
+
+```
+docker run --rm -t -v $(pwd):/opt dougtoppin/cfn-lint 00-master.yaml
+```
+
 
 
 ## Utilisation sceptre
