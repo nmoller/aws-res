@@ -28,6 +28,8 @@ Actually, the whole basic structure you need is here: https://docs.aws.amazon.co
 
 ## Resources
 
+- https://www.trustradius.com/products/aws-elastic-beanstalk/reviews pas génial après qwiklabs "Building Scalable Web Applications with AWS Elastic Beanstalk"
+
 - https://github.com/Tulkis/aws-ebs-moodle
 - https://github.com/rennokki/laravel-aws-eb
 - https://github.com/aws-samples/eb-php-wordpress
