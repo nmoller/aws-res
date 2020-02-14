@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ena-moodle-test-01
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Id: MoodleS3Policy
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Sid: PublicListElements
+            Principal: 
+              AWS: !GetAtt S3User.Arn
+            Action: 
+              - s3:ListBucket
+            Resource: !Join 
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref S3Bucket
+          - Effect: Allow
+            Sid: PublicReadFor
+            Principal: 
+              AWS: !GetAtt S3User.Arn
+            Action: 
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+            Resource: !Sub '${S3Bucket.Arn}/*'
+  
+  S3User:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: ena-moodle-test-01-prog-user
+      
+  S3Keys:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref 'S3User'
+Outputs:
+  # Thats not the best practice, but while we are in tests it simplifies set-up
+  AccessKey:
+    Value: !Ref 'S3Keys'
+    Description: AWSAccessKeyId of new user
+  SecretKey:
+    Value: !GetAtt S3Keys.SecretAccessKey
+    Description: AWSSecretAccessKey of new user
