@@ -46,6 +46,8 @@ Actually, the whole basic structure you need is here: https://docs.aws.amazon.co
 - https://github.com/stelligent/mu
 - https://github.com/nathanpeck/awesome-ecs
 
+- https://github.com/awslabs/aws-cloudformation-templates/tree/master/community/services/RDS/aurora-serverless
+
 - https://www.1strategy.com/blog/2017/04/18/cloudformation-visualizing-cross-stack-references/
 
 - https://bref.sh/docs/
