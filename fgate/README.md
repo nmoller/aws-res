@@ -21,6 +21,7 @@ Discutions à propos de la gestion des secrets cloudformation pour fargate:
 - https://github.com/aws/containers-roadmap/issues/97
 - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html
 - https://aws.amazon.com/premiumsupport/knowledge-center/ecs-data-security-container-task/
+- https://github.com/tonyfromundefined/prisma-aws-cloudformation/blob/master/prisma.aurora.serverless.yml
 
 Cloud formation practices:
 
