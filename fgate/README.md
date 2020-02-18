@@ -31,6 +31,12 @@ Le code pour ceci en haut se trouve dans
 
 - https://github.com/t04glovern/service-slayer/tree/master/cloudformation
 
+## Connexion au container
+
+- https://github.com/pottava/fargate-shell/tree/master/serverless-bastion
+- https://ig.nore.me/2018/07/serverless-bastions-on-demand/
+- https://docs.amazonaws.cn/en_us/AmazonECS/latest/developerguide/instance-connect.html
+
 ## Moodle FS
 
 - https://docs.moodle.org/dev/File_System_API

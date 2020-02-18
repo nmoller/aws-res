@@ -34,12 +34,12 @@ Parameters:
   moodleCpu:
     Type: String
     Description: The CPU units for the container. Must adhere to https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskdefinition.html.
-    Default: 256
+    Default: 1024
 
   moodleMemory:
     Description: The memory reservation for the container. Must adhere to https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskdefinition.html.
     Type: Number
-    Default: 512
+    Default: 2048
 
   moodleVersion:
     Type: String
@@ -72,7 +72,7 @@ Resources:
     Properties:
       AvailabilityZone:
         Fn::Select:
-        - 0
+        - 1
         - Fn::GetAZs: {Ref: 'AWS::Region'}
       VpcId: !Ref 'VPC'
       CidrBlock: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR']
@@ -144,7 +144,15 @@ Resources:
       Description: Ingress from moodle service
       GroupId: !Ref 'DatabaseSecurityGroup'
       IpProtocol: -1
-      SourceSecurityGroupId: !Ref 'moodleServiceSecurityGroup'
+      SourceSecurityGroupId: !Ref 'MoodleServiceSecurityGroup'
+
+  DatabaseSecurityGroupIngressFrommoodleMy:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress from moodle service
+      GroupId: !Ref 'DatabaseSecurityGroup'
+      IpProtocol: 3306
+      CidrIP: '10.0.0.0/16'
 
   DatabaseCluster:
     Type: AWS::RDS::DBCluster
@@ -165,6 +173,7 @@ Resources:
         Ref: DatabaseSubnetGroup
       VpcSecurityGroupIds:
         - Ref: DatabaseSecurityGroup
+        - Ref: MoodleServiceSecurityGroup
 
 
   LoadBalancerSecurityGroup:
@@ -191,15 +200,15 @@ Resources:
   LoadBalancerTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      HealthCheckIntervalSeconds: 6
-      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 300
+      HealthCheckPath: /test.php
       HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 5
+      HealthCheckTimeoutSeconds: 30
       HealthyThresholdCount: 2
       Name: !Join ['-', [!Ref 'AWS::StackName', 'moodle']]
       Port: 80
       Protocol: HTTP
-      UnhealthyThresholdCount: 2
+      UnhealthyThresholdCount: 10
       VpcId: !Ref 'VPC'
       TargetType: 'ip'
 
@@ -216,16 +225,16 @@ Resources:
       Protocol: HTTP
 
 
-  moodleCluster:
+  MoodleCluster:
     Type: AWS::ECS::Cluster
 
-  moodleLogs:
+  MoodleLogs:
     Type: "AWS::Logs::LogGroup"
     Properties: 
       LogGroupName: !Ref 'AWS::StackName'
       RetentionInDays: 7
 
-  moodleTaskDefinition:
+  MoodleTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     DependsOn: DatabaseCluster
     Properties:
@@ -235,12 +244,13 @@ Resources:
         - FARGATE
       Family: moodle
       NetworkMode: awsvpc
-      ExecutionRoleArn: !Ref moodleTaskExecutionRole
-      TaskRoleArn: !Ref moodleTaskExecutionRole
+      ExecutionRoleArn: !Ref MoodleTaskExecutionRole
+      TaskRoleArn: !Ref MoodleTaskExecutionRole
       ContainerDefinitions:
         - Name: moodleContainer
           Essential: true
-          Image: !Join [':', [ 'nmolleruq/moouqamtest', !Ref moodleVersion ]]
+          #Image: !Join [':', [ 'nmolleruq/moouqamtest', !Ref moodleVersion ]]
+          Image: nmolleruq/moouqamtest:1.1.2
           PortMappings:
             - ContainerPort: 80
           Environment:
@@ -264,7 +274,6 @@ Resources:
               Value: '/var/www/moodledata'
             - Name: MDL_LOCALCACHEDIR
               Value: '/tmp'
-          
             
           Ulimits:
             - Name: nofile
@@ -277,41 +286,41 @@ Resources:
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: moodle
 
-  moodleServiceSecurityGroup:
+  MoodleServiceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Access to the Fargate containers
       VpcId: !Ref 'VPC'
 
-  moodleServiceSecurityGroupIngressFromLoadBalancer:
+  MoodleServiceSecurityGroupIngressFromLoadBalancer:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       Description: Ingress from the load balancer
-      GroupId: !Ref 'moodleServiceSecurityGroup'
+      GroupId: !Ref 'MoodleServiceSecurityGroup'
       IpProtocol: -1
       SourceSecurityGroupId: !Ref 'LoadBalancerSecurityGroup'
 
-  moodleServiceSecurityGroupIngressFromSelf:
+  MoodleServiceSecurityGroupIngressFromSelf:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       Description: Ingress from other containers in the same security group
-      GroupId: !Ref 'moodleServiceSecurityGroup'
+      GroupId: !Ref 'MoodleServiceSecurityGroup'
       IpProtocol: -1
-      SourceSecurityGroupId: !Ref 'moodleServiceSecurityGroup'
+      SourceSecurityGroupId: !Ref 'MoodleServiceSecurityGroup'
 
-  moodleServiceSecurityGroupIngressFromDB:
+  MoodleServiceSecurityGroupIngressFromDB:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       Description: Ingress from DB
-      GroupId: !Ref 'DatabaseSecurityGroup'
+      GroupId: !Ref 'MoodleServiceSecurityGroup'
       IpProtocol: -1
       SourceSecurityGroupId: !Ref 'DatabaseSecurityGroup'
 
-  moodleService:
+  MoodleService:
     Type: AWS::ECS::Service
     DependsOn: LoadBalancerListener
     Properties: 
-      Cluster: !Ref moodleCluster
+      Cluster: !Ref MoodleCluster
       ServiceName: moodle
       LaunchType: FARGATE
       DesiredCount: 1
@@ -319,7 +328,7 @@ Resources:
         MaximumPercent: 200
         MinimumHealthyPercent: 100
       HealthCheckGracePeriodSeconds: 30
-      TaskDefinition: !Ref moodleTaskDefinition
+      TaskDefinition: !Ref MoodleTaskDefinition
       LoadBalancers: 
         - ContainerName: moodleContainer
           ContainerPort: 80
@@ -328,12 +337,13 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups: 
-            - !Ref moodleServiceSecurityGroup
+            - !Ref MoodleServiceSecurityGroup
+            - !Ref DatabaseSecurityGroup
           Subnets:
             - !Ref PublicSubnetOne
             - !Ref PublicSubnetTwo
 
-  moodleRole:
+  MoodleRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -363,7 +373,7 @@ Resources:
               - 'elasticloadbalancing:RegisterTargets'
             Resource: '*'
 
-  moodleTaskExecutionRole:
+  MoodleTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
