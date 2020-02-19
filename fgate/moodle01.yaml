@@ -286,7 +286,7 @@ Resources:
         - Name: moodleContainer
           Essential: true
           #Image: !Join [':', [ 'nmolleruq/moouqamtest', !Ref moodleVersion ]]
-          Image: nmolleruq/moouqamtest:1.1.5
+          Image: nmolleruq/moouqamtest:1.1.6
           PortMappings:
             - ContainerPort: 80
           Environment:

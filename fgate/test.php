@@ -1,7 +1,7 @@
 <?php
 
+$file = __DIR__.'/config.php';
 if (file_exists($file)){
-    $file = __DIR__.'/config.php';
     $orig = file_get_contents($file);
     $a = htmlentities($orig);
 
