@@ -1,0 +1,129 @@
+AWSTemplateFormatVersion: '2010-09-09'  
+Description: Moodle  RDS (Aurora Serverless)
+
+Parameters:
+  DatabaseName:
+    Default: "moodle"
+    Description: The database name (Default "moodle", change if you are creating more than one database)
+    Type: String
+
+  DatabaseUsername:
+    Default: "moodle"
+    AllowedPattern: "[a-zA-Z0-9]+"
+    ConstraintDescription: must contain only alphanumeric characters. Must have length 1-16
+    Description: The database admin account user name. (Default "moodle")
+    MaxLength: '16'
+    MinLength: '1'
+    Type: String
+
+  DatabasePassword:
+    AllowedPattern: "[a-zA-Z0-9]+"
+    ConstraintDescription: must contain only alphanumeric characters. Must have length 8-41.
+    Description: The database admin account password. (Choose a secure password)
+    MaxLength: '41'
+    MinLength: '8'
+    NoEcho: 'true'
+    Type: String
+
+Mappings:
+  SubnetConfig:
+    VPC:
+      CIDR: '10.0.0.0/16'
+    PublicOne:
+      CIDR: '10.0.0.0/24'
+    PublicTwo:
+      CIDR: '10.0.1.0/24'
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      CidrBlock: !FindInMap ['SubnetConfig', 'VPC', 'CIDR']
+
+  PublicSubnetOne:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 1
+        - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR']
+      MapPublicIpOnLaunch: true
+
+  PublicSubnetTwo:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 2
+        - Fn::GetAZs: {Ref: 'AWS::Region'}
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap ['SubnetConfig', 'PublicTwo', 'CIDR']
+      MapPublicIpOnLaunch: true
+
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: CloudFormation managed DB subnet group.
+      SubnetIds:
+        - !Ref PublicSubnetOne
+        - !Ref PublicSubnetTwo
+
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      VpcId: !Ref VPC
+      GroupDescription: Access to database
+
+  DatabaseSecurityGroupIngressFromVPC:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress from moodle service
+      GroupId: !Ref 'DatabaseSecurityGroup'
+      FromPort: 3306
+      ToPort: 3306
+      IpProtocol: tcp
+      CidrIp: '10.0.0.0/16'
+
+  # From https://docs.moodle.org/38/en/MySQL_full_unicode_support
+  DBClusterParameterGroup:
+    Type: 'AWS::RDS::DBClusterParameterGroup'
+    Properties:
+      Description: Test param group
+      Family: 'aurora5.6'
+      Parameters: 
+        innodb_file_format: Barracuda
+        innodb_file_per_table: 1
+        character_set_database: utf8mb4
+        character_set_client: utf8mb4
+        character-set-client-handshake: 0
+        character_set_server: utf8mb4
+        collation_server: utf8mb4_unicode_ci
+
+  DatabaseCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      MasterUsername: 
+        Ref: DatabaseUsername
+      MasterUserPassword: 
+        Ref: DatabasePassword
+      Engine: aurora
+      EngineMode: serverless
+      DatabaseName: !Ref DatabaseName
+      ScalingConfiguration:
+        AutoPause: true
+        MaxCapacity: 4
+        MinCapacity: 1
+        SecondsUntilAutoPause: 300
+      DBClusterIdentifier: !Ref DatabaseName
+      DBSubnetGroupName:
+        Ref: DatabaseSubnetGroup
+      VpcSecurityGroupIds:
+        - Ref: DatabaseSecurityGroup
+        #- Ref: MoodleServiceSecurityGroup
+      DBClusterParameterGroupName: !Ref DBClusterParameterGroup
+
+  

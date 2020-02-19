@@ -48,6 +48,22 @@ Parameters:
       - 0.0.69
       - 0.0.68
 
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Database Configuration
+        Parameters:
+          - DatabaseName
+          - DatabaseUsername
+          - DatabasePassword
+    ParameterLabels:
+      DatabaseName:
+          default: Database name
+      DatabasePassword:
+          default: Database Password
+      DatabaseUsername:
+          default: Database Username
 
 Mappings:
   SubnetConfig:
@@ -146,13 +162,32 @@ Resources:
       IpProtocol: -1
       SourceSecurityGroupId: !Ref 'MoodleServiceSecurityGroup'
 
-  DatabaseSecurityGroupIngressFrommoodleMy:
+  DatabaseSecurityGroupIngressFromVPC:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       Description: Ingress from moodle service
       GroupId: !Ref 'DatabaseSecurityGroup'
-      IpProtocol: 3306
-      CidrIP: '10.0.0.0/16'
+      FromPort: 3306
+      ToPort: 3306
+      IpProtocol: tcp
+      CidrIp: '10.0.0.0/16'
+  
+
+  # From https://docs.moodle.org/38/en/MySQL_full_unicode_support
+  DBClusterParameterGroup:
+    Type: 'AWS::RDS::DBClusterParameterGroup'
+    Properties:
+      Description: Test param group
+      Family: 'aurora5.6'
+      Parameters: 
+        innodb_file_format: Barracuda
+        innodb_file_per_table: 1
+        innodb_large_prefix: 1
+        character_set_database: utf8mb4
+        character_set_client: utf8mb4
+        character-set-client-handshake: 0
+        character_set_server: utf8mb4
+        collation_server: utf8mb4_unicode_ci
 
   DatabaseCluster:
     Type: AWS::RDS::DBCluster
@@ -163,6 +198,7 @@ Resources:
         Ref: DatabasePassword
       Engine: aurora
       EngineMode: serverless
+      DatabaseName: !Ref DatabaseName
       ScalingConfiguration:
         AutoPause: true
         MaxCapacity: 4
@@ -173,8 +209,8 @@ Resources:
         Ref: DatabaseSubnetGroup
       VpcSecurityGroupIds:
         - Ref: DatabaseSecurityGroup
-        - Ref: MoodleServiceSecurityGroup
-
+        #- Ref: MoodleServiceSecurityGroup
+      DBClusterParameterGroupName: !Ref DBClusterParameterGroup
 
   LoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -250,7 +286,7 @@ Resources:
         - Name: moodleContainer
           Essential: true
           #Image: !Join [':', [ 'nmolleruq/moouqamtest', !Ref moodleVersion ]]
-          Image: nmolleruq/moouqamtest:1.1.2
+          Image: nmolleruq/moouqamtest:1.1.5
           PortMappings:
             - ContainerPort: 80
           Environment:

@@ -1,6 +1,7 @@
 # Genérale AWS.
 
 - https://www.catalyst.net.nz/blog/cutting-our-aws-spend-half
+- https://stackoverflow.com/questions/45027830/cant-delete-aws-internet-gateway
 
 # Fargate resources
 
@@ -25,6 +26,7 @@ Discutions à propos de la gestion des secrets cloudformation pour fargate:
 
 Cloud formation practices:
 
+- https://theburningmonk.com/cloudformation-ref-and-getatt-cheatsheet/
 - https://devopstar.com/2019/01/24/managing-aws-fargate-with-cloudformation-nested-stacks
 
 Le code pour ceci en haut se trouve dans
