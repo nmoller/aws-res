@@ -253,12 +253,17 @@ Resources:
     DependsOn:
       - LoadBalancer
     Properties:
+      Certificates:
+        - CertificateArn: arn:aws:iam::962807250228:server-certificate/MyCertificate
       DefaultActions:
         - TargetGroupArn: !Ref 'LoadBalancerTargetGroup'
           Type: 'forward'
       LoadBalancerArn: !Ref 'LoadBalancer'
       Port: 80
       Protocol: HTTP
+      Port: 443
+      Protocol: HTTPS
+
 
 
   MoodleCluster:
@@ -286,7 +291,7 @@ Resources:
         - Name: moodleContainer
           Essential: true
           #Image: !Join [':', [ 'nmolleruq/moouqamtest', !Ref moodleVersion ]]
-          Image: nmolleruq/moouqamtest:1.1.6
+          Image: nmolleruq/moouqamtest:X.0.70
           PortMappings:
             - ContainerPort: 80
           Environment:
@@ -303,7 +308,7 @@ Resources:
             - Name: MDL_DBPASS
               Value: !Ref DatabasePassword
             - Name: MDL_WWWROOT
-              Value: !Join ['', ['http://', !GetAtt 'LoadBalancer.DNSName']]
+              Value: !Join ['', ['https://', !GetAtt 'LoadBalancer.DNSName']]
             #- Name: MDL_MEMSESSION
             #  Value: memsession
             - Name: MDL_DATAROOT
@@ -437,6 +442,6 @@ Resources:
 Outputs:
   moodleEndpoint:
     Description: The endpoint of the external load balancer
-    Value: !Join ['', ['http://', !GetAtt 'LoadBalancer.DNSName']]
+    Value: !Join ['', ['https://', !GetAtt 'LoadBalancer.DNSName']]
     Export:
       Name: !Join [':', [ !Ref 'AWS::StackName', 'moodleEndpoint' ]]

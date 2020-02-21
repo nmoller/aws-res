@@ -3,6 +3,8 @@
 - https://www.catalyst.net.nz/blog/cutting-our-aws-spend-half
 - https://stackoverflow.com/questions/45027830/cant-delete-aws-internet-gateway
 
+- https://prasaddomala.com/blog/how-to-enable-ssl-on-aws-elastic-load-balancer-using-openssl-self-signed-certificates
+
 # Fargate resources
 
 - Safari: Amazon Fargate Quick Start Guide.
@@ -10,6 +12,8 @@
 
 - https://templates.cloudonaut.io/en/stable/fargate/
 - https://github.com/milap-neupane/aws-cloudformation-sample/tree/master/ecs-node-app
+
+- https://answerstu.com/question-66754
 
 Paramètres pour une task
 
