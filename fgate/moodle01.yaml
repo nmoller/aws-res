@@ -376,6 +376,97 @@ Resources:
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: moodle
 
+  MoodleTaskCronDefinition:
+    Type: AWS::ECS::TaskDefinition
+    DependsOn: DatabaseCluster
+    Properties:
+      Cpu: !Ref moodleCpu
+      Memory: !Ref moodleMemory
+      RequiresCompatibilities: 
+        - FARGATE
+      Family: moodle-cron
+      NetworkMode: awsvpc
+      ExecutionRoleArn: !Ref MoodleTaskExecutionRole
+      TaskRoleArn: !Ref MoodleTaskExecutionRole
+      ContainerDefinitions:
+        - Name: moodle-cron
+          Essential: true
+          #Image: !Join [':', [ 'nmolleruq/moouqamtest', !Ref moodleVersion ]]
+          Image: nmolleruq/moouqamtest:X.0.72
+          EntryPoint:
+            - '/usr/local/bin/php'
+            - 'admin/cli/cron.php'
+            - '||'
+            - 'echo'
+            - '"locks problem"'
+          
+          Environment:
+            - Name: MDL_WWWROOT
+              Value: /var/www/moodledata
+            - Name: MDL_DBTYPE
+              Value: mysqli
+            - Name: MDL_DBHOST
+              Value: !GetAtt DatabaseCluster.Endpoint.Address
+            - Name: MDL_DBNAME
+              Value: !Ref DatabaseName
+            - Name: MDL_DBUSER
+              Value: !Ref DatabaseUsername
+            - Name: MDL_DBPASS
+              Value: !Ref DatabasePassword
+            - Name: MDL_WWWROOT
+              Value: !Join ['', ['https://', !GetAtt 'LoadBalancer.DNSName']]
+            #- Name: MDL_MEMSESSION
+            #  Value: memsession
+            - Name: MDL_DATAROOT
+              Value: '/var/www/moodledata'
+            - Name: MDL_LOCALCACHEDIR
+              Value: '/tmp'
+            - Name: MDL_S3KEY
+              Value: !Ref 'S3Keys'
+            - Name: MDL_S3SECRET
+              Value: !GetAtt S3Keys.SecretAccessKey
+            - Name: MDL_S3BUCKET
+              Value: !Ref S3Bucket
+            - Name: MDL_S3REGION
+              Value: 'us-west-2'
+            
+            
+          Ulimits:
+            - Name: nofile
+              HardLimit: 1000000
+              SoftLimit: 1000000
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref 'AWS::StackName'
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: moodle-cron
+
+  MoodleCronEvent:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: 'According to the specified schedule'
+      ScheduleExpression: rate(3 minutes)
+      State: ENABLED
+      Targets:
+      - Id: 'Cron-Fargate-Task'
+        #RoleArn: !GetAtt MoodleTaskExecutionRole.Arn
+        EcsParameters:
+          TaskDefinitionArn: !Ref MoodleTaskCronDefinition
+          TaskCount: 1
+          LaunchType: 'FARGATE'
+          PlatformVersion: 'LATEST'
+          NetworkConfiguration:
+            AwsVpcConfiguration:
+              AssignPublicIp: DISABLED
+              SecurityGroups: 
+                - !Ref MoodleServiceSecurityGroup
+                - !Ref DatabaseSecurityGroup
+              Subnets:
+                - !Ref PublicSubnetOne
+                - !Ref PublicSubnetTwo
+        #Arn: !GetAtt MoodleTaskExecutionRole.Arn
+
   MoodleServiceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:

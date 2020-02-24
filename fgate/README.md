@@ -2,6 +2,8 @@
 
 - https://www.catalyst.net.nz/blog/cutting-our-aws-spend-half
 - https://stackoverflow.com/questions/45027830/cant-delete-aws-internet-gateway
+- https://moodle.org/mod/forum/discuss.php?d=340822
+- https://github.com/EduardoKrausME/moodledata-to-AWS
 
 - https://prasaddomala.com/blog/how-to-enable-ssl-on-aws-elastic-load-balancer-using-openssl-self-signed-certificates
 
