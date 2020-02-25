@@ -393,13 +393,13 @@ Resources:
           Essential: true
           #Image: !Join [':', [ 'nmolleruq/moouqamtest', !Ref moodleVersion ]]
           Image: nmolleruq/moouqamtest:X.0.72
+          WorkingDirectory: /var/www/html/admin/cli
           EntryPoint:
-            - '/usr/local/bin/php'
-            - 'admin/cli/cron.php'
-            - '||'
-            - 'echo'
-            - '"locks problem"'
-          
+            - /usr/local/bin/php
+          Command:
+            - cron.php
+          Interactive: true
+          User: '33:33'
           Environment:
             - Name: MDL_WWWROOT
               Value: /var/www/moodledata
