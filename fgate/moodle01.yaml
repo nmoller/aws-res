@@ -450,7 +450,7 @@ Resources:
       State: ENABLED
       Targets:
       - Id: 'Cron-Fargate-Task'
-        #RoleArn: !GetAtt MoodleTaskExecutionRole.Arn
+        RoleArn: !GetAtt MoodleTaskExecutionRole.Arn
         EcsParameters:
           TaskDefinitionArn: !Ref MoodleTaskCronDefinition
           TaskCount: 1
@@ -465,7 +465,8 @@ Resources:
               Subnets:
                 - !Ref PublicSubnetOne
                 - !Ref PublicSubnetTwo
-        #Arn: !GetAtt MoodleTaskExecutionRole.Arn
+        # Impossible à déchiffrer sans https://forums.aws.amazon.com/thread.jspa?messageID=807416
+        Arn: !GetAtt MoodleCluster.Arn
 
   MoodleServiceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -576,6 +577,7 @@ Resources:
                 - 'ecr:BatchGetImage'
                 - 'logs:CreateLogStream'
                 - 'logs:PutLogEvents'
+                - 'iam:PassRole' #Trop large? https://docs.aws.amazon.com/AmazonECS/latest/developerguide/CWE_IAM_role.html
               Resource: '*'
 
 
