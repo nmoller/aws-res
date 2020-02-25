@@ -16,6 +16,7 @@
 - https://github.com/milap-neupane/aws-cloudformation-sample/tree/master/ecs-node-app
 
 - https://answerstu.com/question-66754
+- https://github.com/aws/containers-roadmap/issues/631
 
 Paramètres pour une task
 

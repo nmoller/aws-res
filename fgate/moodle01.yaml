@@ -364,7 +364,6 @@ Resources:
             - Name: MDL_S3REGION
               Value: 'us-west-2'
             
-            
           Ulimits:
             - Name: nofile
               HardLimit: 1000000
@@ -375,6 +374,72 @@ Resources:
               awslogs-group: !Ref 'AWS::StackName'
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: moodle
+  
+  MoodleTaskTestDefinition:
+    Type: AWS::ECS::TaskDefinition
+    DependsOn: DatabaseCluster
+    Properties:
+      Cpu: !Ref moodleCpu
+      Memory: !Ref moodleMemory
+      RequiresCompatibilities: 
+        - FARGATE
+      Family: test-cron
+      NetworkMode: awsvpc
+      ExecutionRoleArn: !Ref MoodleTaskExecutionRole
+      TaskRoleArn: !Ref MoodleTaskExecutionRole
+      ContainerDefinitions:
+        - Name: test-cron
+          Essential: true
+          #Image: !Join [':', [ 'nmolleruq/moouqamtest', !Ref moodleVersion ]]
+          Image: nmolleruq/moouqamtest:X.0.72
+          WorkingDirectory: /var/www/html/admin/cli
+          EntryPoint:
+            - /usr/local/bin/php
+          Command:
+            - cron.php
+          Interactive: true
+          User: '33:33'
+          Environment:
+            - Name: MDL_WWWROOT
+              Value: /var/www/moodledata
+            - Name: MDL_DBTYPE
+              Value: mysqli
+            - Name: MDL_DBHOST
+              Value: !GetAtt DatabaseCluster.Endpoint.Address
+            - Name: MDL_DBNAME
+              Value: !Ref DatabaseName
+            - Name: MDL_DBUSER
+              Value: !Ref DatabaseUsername
+            - Name: MDL_DBPASS
+              Value: !Ref DatabasePassword
+            - Name: MDL_WWWROOT
+              Value: !Join ['', ['https://', !GetAtt 'LoadBalancer.DNSName']]
+            #- Name: MDL_MEMSESSION
+            #  Value: memsession
+            - Name: MDL_DATAROOT
+              Value: '/var/www/moodledata'
+            - Name: MDL_LOCALCACHEDIR
+              Value: '/tmp'
+            - Name: MDL_S3KEY
+              Value: !Ref 'S3Keys'
+            - Name: MDL_S3SECRET
+              Value: !GetAtt S3Keys.SecretAccessKey
+            - Name: MDL_S3BUCKET
+              Value: !Ref S3Bucket
+            - Name: MDL_S3REGION
+              Value: 'us-west-2'
+            
+          Ulimits:
+            - Name: nofile
+              HardLimit: 1000000
+              SoftLimit: 1000000
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref 'AWS::StackName'
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: test-cron
+
 
   MoodleTaskCronDefinition:
     Type: AWS::ECS::TaskDefinition
@@ -429,7 +494,6 @@ Resources:
               Value: !Ref S3Bucket
             - Name: MDL_S3REGION
               Value: 'us-west-2'
-            
             
           Ulimits:
             - Name: nofile
