@@ -1023,7 +1023,10 @@ Resources:
           !Ref MoodleLocale
         ElastiCacheClusterEndpointAddress:
           ''
-      TemplateURL: https://s3.amazonaws.com/aws-refarch/moodle/latest/templates/04-web.yaml
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cf-templates-aprt95kvmgkc-us-west-2/2020059OWJ-04-web.yaml
+
+
+
   webcached:
     DependsOn: [ publicalb, rds, efsfilesystem, sessioncache ]
     Condition: DeployWithSessionCache
@@ -1066,7 +1069,10 @@ Resources:
           !Ref MoodleLocale
         ElastiCacheClusterEndpointAddress:
           !GetAtt sessioncache.Outputs.ElastiCacheClusterEndpointAddress
-      TemplateURL: https://s3.amazonaws.com/aws-refarch/moodle/latest/templates/04-web.yaml
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cf-templates-aprt95kvmgkc-us-west-2/2020059OWJ-04-web.yaml
+
+
+
   cloudfront:
     Condition: DeployCloudFront
     DependsOn: publicalb    
