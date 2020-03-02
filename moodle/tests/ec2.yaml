@@ -1,0 +1,87 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: VM pour tester scripts dinit
+
+
+Parameters:
+  
+  EC2KeyName:
+    ConstraintDescription: Must be letters (upper or lower), numbers, and special characters.
+    Description: Name of an EC2 KeyPair. Your bastion & Web instances will launch with this KeyPair.
+    Type: AWS::EC2::KeyPair::KeyName
+  
+  WebInstanceType:
+    AllowedValues:
+      - t2.nano 
+      - t2.micro 
+      - t2.small 
+    Type: String
+    Default: t2.micro
+  
+  LatestAmiId :
+    Type : AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2
+     
+
+Resources:
+  VM:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          deploy_webserver:
+            - use_php_extras
+            - install_webserver
+        use_php_extras:
+          command: amazon-linux-extras install -y php7.3=7.3.13
+        install_webserver:
+          packages:
+            yum:
+              awslogs: []
+              httpd24: []
+              postgresql93: []
+              php-pgsql: []
+              php-gd: []
+              php-soap: []
+              php-intl: []
+              php-mbstring: []
+              php-xmlrpc: []
+              php-zip: []
+          files:
+            /tmp/create_site_conf.sh:
+              content: !Sub |
+                #!/bin/bash -xe
+                if [ ! -f /etc/httpd/conf.d/moodle.conf ]; then                    
+                    touch /etc/httpd/conf.d/moodle.conf
+                    echo 'ServerName 127.0.0.1:80' >> /etc/httpd/conf.d/moodle.conf
+                    echo 'DocumentRoot /var/www/moodle/html' >> /etc/httpd/conf.d/moodle.conf
+                    echo '<Directory /var/www/moodle/html>' >> /etc/httpd/conf.d/moodle.conf
+                    echo '  Options Indexes FollowSymLinks' >> /etc/httpd/conf.d/moodle.conf
+                    echo '  AllowOverride All' >> /etc/httpd/conf.d/moodle.conf
+                    echo '  Require all granted' >> /etc/httpd/conf.d/moodle.conf
+                    echo '</Directory>' >> /etc/httpd/conf.d/moodle.conf
+                fi
+              mode: 000500
+              owner: root
+          
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref WebInstanceType
+      KeyName: !Ref EC2KeyName
+      UserData:
+        "Fn::Base64":
+          !Sub |
+            #!/bin/bash -xe
+            yum update -y
+            
+            #Create directory structure
+            mkdir -p /var/www/moodle/html
+            mkdir -p /var/www/moodle/data
+            mkdir -p /var/www/moodle/cache
+            mkdir -p /var/www/moodle/temp
+            mkdir -p /var/www/moodle/local
+          
+            #Run CloudFormation Init Scripts
+            /opt/aws/bin/cfn-init --configsets deploy_webserver --verbose --stack ${AWS::StackName} --resource WebLaunchConfiguration --region ${AWS::Region}
+            /opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource WebAutoScalingGroup --region ${AWS::Region}
