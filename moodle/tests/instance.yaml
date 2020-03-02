@@ -99,7 +99,7 @@ Resources:
           packages:
             yum:
               awslogs: []
-              httpd24: []
+              httpd: []
               postgresql: []
               php-pgsql: []
               php-gd: []
