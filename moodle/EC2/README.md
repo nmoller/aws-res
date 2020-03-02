@@ -2,6 +2,13 @@
 
 - https://github.com/ELRuncho/MoodleCloudFormation
 - https://github.com/aws-samples/aws-refarch-moodle
+- https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-ami-basics.html
+- https://cloudonaut.io/migrating-to-amazon-linux-2/
+- https://github.com/suzryo/aws/blob/master/CFn/ec2-wordpress/cloudfront-nginx-wordpress-al2/sample-6.yaml
+
+## Autoscaling
+
+- https://medium.com/@lvthillo/aws-auto-scaling-based-on-memory-utilization-in-cloudformation-159676b6f4d6
 
 ## Préparer serveur
 
