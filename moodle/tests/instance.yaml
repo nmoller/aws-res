@@ -78,7 +78,8 @@ Resources:
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
-      CidrIp: 0.0.0.0/0
+      CidrIp: 132.208.0.0/16
+      #CidrIp: 0.0.0.0/0
   
 
   VM:
@@ -107,7 +108,8 @@ Resources:
               php-intl: []
               php-mbstring: []
               php-xmlrpc: []
-              php-zip: []
+              php-pecl-memcached: []
+              php-pecl-zip: []
           files:
             /tmp/create_site_conf.sh:
               content: !Sub |
