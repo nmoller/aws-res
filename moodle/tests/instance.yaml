@@ -104,7 +104,7 @@ Resources:
                 #!/bin/bash 
 
                 function get_token() {
-                  echo  $( curl -s -u "{{{resolve:ssm:bitbucket:1}}}" \
+                  echo  $( curl -s -u "{{resolve:ssm:bitbucket:1}}" \
                     https://bitbucket.org/site/oauth2/access_token \
                     -d grant_type=client_credentials | \
                     jq '.access_token'| sed -e "s/\"//g" )
