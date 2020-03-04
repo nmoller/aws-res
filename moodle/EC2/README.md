@@ -12,6 +12,7 @@ Installation des dépendences
 - https://blog.duaneleem.com/amazon-linux-2-apache-2-4-php-7-3/
 
 S'il y des problèmes avec l'installation d'oci8:
+- https://github.com/moodlehq/moodle-php-apache/tree/master/root/tmp/setup
 - https://unix.stackexchange.com/questions/256083/installing-oci8-php-extension
 - https://blogs.oracle.com/linux/connect-php-72-to-oracle-database-12c-using-oracle-linux-yum-server
 
@@ -85,7 +86,7 @@ Create oauth:
 
 Obtenir token
 ```
-curl -u "id:SECRET"   https://bitbucket.org/site/oauth2/access_token   -d grant_type=client_credentials
+curl -u "KEY:SECRET"   https://bitbucket.org/site/oauth2/access_token   -d grant_type=client_credentials
 
 {"access_token": "vpa-5_vEf0atVwA9XZr2vsVBztzZfTvr6io61-7zHzev5yI9LE6klz4dKz_UnVdxwfNWOpNMNu1Tgwl7RZC_70I4htQ4dHfhJyvYeUk2Db4pgPtC3xl6YCUkC4oueRRQ_LCCv876gAky6VZmTyAD", "scopes": "project", "expires_in": 7200, "refresh_token": "KM8b2PLH8n3esuCgwM", "token_type": "bearer"}
 
@@ -101,7 +102,7 @@ wget https://x-token-auth:{}@api.bitbucket.org/2.0/repositories/uqam/moodle/get/
 
 Pour aller chercher le token:
 ```
-curl -u "id:token" https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials | jq '.access_token'| sed -e "s/\"//g"
+curl -u "KEY:SECRET" https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials | jq '.access_token'| sed -e "s/\"//g"
 ```
 
 Pour plus d'infos `jq`:
