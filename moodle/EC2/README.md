@@ -63,3 +63,40 @@ Moodle use-case:
 
   - moodle
   - configphp
+
+## Bitbucket
+
+C'est super con:
+```
+https://stackoverflow.com/questions/37463455/download-a-file-from-the-download-section-of-bitbucket-repo-using-access-key
+```
+
+### Ceci ne fonctionne que pour
+
+Create oauth.
+
+Obtenir token
+```
+curl -u "id:SECRET"   https://bitbucket.org/site/oauth2/access_token   -d grant_type=client_credentials
+
+{"access_token": "vpa-5_vEf0atVwA9XZr2vsVBztzZfTvr6io61-7zHzev5yI9LE6klz4dKz_UnVdxwfNWOpNMNu1Tgwl7RZC_70I4htQ4dHfhJyvYeUk2Db4pgPtC3xl6YCUkC4oueRRQ_LCCv876gAky6VZmTyAD", "scopes": "project", "expires_in": 7200, "refresh_token": "KM8b2PLH8n3esuCgwM", "token_type": "bearer"}
+
+# avec ça on peut clonner, cependant le téléchargement ne fonctionne pas
+git clone "https://x-token-auth:{vpa-5_vEf0atVwA9XZr2vsVBztzZfTvr6io61-7zHzev5yI9LE6klz4dKz_UnVdxwfNWOpNMNu1Tgwl7RZC_70I4htQ4dHfhJyvYeUk2Db4pgPtC3xl6YCUkC4oueRRQ_LCCv876gAky6VZmTyAD}@bitbucket.org/uqam/moodle" toto
+
+# choses dans le style:
+wget https://x-token-auth:{}@api.bitbucket.org/2.0/repositories/uqam/moodle/downloads/UQAM_37_DEV.tar.gz
+wget https://x-token-auth:{}@api.bitbucket.org/2.0/repositories/uqam/moodle/get/UQAM_37_DEV.tar.gz
+# ne fonctionnent pas!
+
+```
+
+Pour aller chercher le token:
+```
+curl -u "id:token" https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials | jq '.access_token'| sed -e "s/\"//g"
+```
+
+Pour plus d'infos `jq`:
+
+https://shapeshed.com/jq-json/#how-to-use-pipes-with-jq
+

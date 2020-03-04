@@ -91,6 +91,62 @@ Resources:
           deploy_webserver:
             - use_php_extras
             - install_webserver
+          install_moodle:
+            - run_installer
+        run_installer:
+          packages:
+            yum:
+              jq: []
+              git: []
+          files:
+            /tmp/installer.sh:
+              content: !Sub |
+                #!/bin/bash 
+
+                function get_token() {
+                  echo  $( curl -s -u "{'{{resolve:ssm:bitbucket:1}}'}" \
+                    https://bitbucket.org/site/oauth2/access_token \
+                    -d grant_type=client_credentials | \
+                    jq '.access_token'| sed -e "s/\"//g" )
+                }
+
+                function installer() {
+                  while IFS= read -r PLUGIN
+                  do
+                      PLUGINGITREPO=$(echo "$PLUGIN" | cut -f1 -d'|')
+                      PLUGINFOLDER=$(echo "$PLUGIN" | cut -f2 -d'|')
+                      PLUGINBRANCH=$(echo "$PLUGIN" | cut -f3 -d'|')
+
+                      if [ -n "${!PLUGINBRANCH}" ]
+                      then
+                      # Only download this branch.
+                      PLUGINBRANCH="-b ${!PLUGINBRANCH} --single-branch"
+                      fi
+
+                      # Clone the plugin repository in the defined folder.
+                      echo git clone ${!PLUGINBRANCH} ${!PLUGINGITREPO} "/var/www/html/moodle/${!PLUGINFOLDER}"
+                  done < $1
+                }
+
+                #installer "components.txt"
+                get_token
+              mode: 000500
+              owner: root
+            # Installer directement des dépôts à revoir pour Bitbucket
+            /tmp/components.txt:
+              content: !Sub |
+                https://github.com/moodle/moodle|.|MOODLE_38_STABLE
+                https://github.com/moodleuulm/moodle-theme_boost_campus|theme/boost_campus|master
+                https://github.com/jleyva/moodle-block_configurablereports|blocks/configurable_reports|MOODLE_36_STABLE
+                #Ne pas effacer
+              mode: 000400
+              owner: root
+          
+          commands:
+            run:
+              command: ./installer.sh
+              cwd: /tmp
+              ignoreErrors: false
 
         use_php_extras:
           commands: 
@@ -146,7 +202,7 @@ Resources:
             mkdir -p /var/www/moodle/local
           
             #Run CloudFormation Init Scripts
-            /opt/aws/bin/cfn-init --configsets deploy_webserver --verbose --stack ${AWS::StackName} --resource VM --region ${AWS::Region}
+            /opt/aws/bin/cfn-init --configsets install_moodle --verbose --stack ${AWS::StackName} --resource VM --region ${AWS::Region}
             #/opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource WebAutoScalingGroup --region ${AWS::Region}
 
 Outputs:

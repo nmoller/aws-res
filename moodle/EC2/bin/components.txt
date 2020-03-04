@@ -1,0 +1,4 @@
+https://github.com/moodlehq/moodle-local_mobile.git|local/mobile|MOODLE_37_STABLE
+https://github.com/moodleuulm/moodle-theme_boost_campus/archive/v3.7-r4.tar.gz|theme/boost_campus
+git@github.com:jleyva/moodle-block_configurablereports.git|blocks/configurable_reports|master
+#Ne pas effacer
