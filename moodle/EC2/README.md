@@ -66,14 +66,22 @@ Moodle use-case:
 
 ## Bitbucket
 
-C'est super con:
+### Aller télécharger moodle
+
+On voulait privilégier le téléchargement par `wget` pour ne pas avoir à installer git. 
+
+C'est super con (si l'on met user-password):
 ```
 https://stackoverflow.com/questions/37463455/download-a-file-from-the-download-section-of-bitbucket-repo-using-access-key
 ```
 
-### Ceci ne fonctionne que pour
+Ça fonctionne pour mon code `nmoller` cependant `admin-moodle` ne fonctionne pas.
 
-Create oauth.
+### Ceci ne fonctionne que pour clone
+Create oauth:
+
+![OAuth consumer](../img/bitbucket-consumer.png)
+
 
 Obtenir token
 ```
