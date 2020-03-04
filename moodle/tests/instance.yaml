@@ -104,12 +104,14 @@ Resources:
                 #!/bin/bash 
 
                 function get_token() {
-                  echo  $( curl -s -u "{{resolve:ssm:bitbucket:1}}" \
+                  echo -n $( curl -s -u "{{resolve:ssm:bitbucket:1}}" \
                     https://bitbucket.org/site/oauth2/access_token \
                     -d grant_type=client_credentials | \
                     jq '.access_token'| sed -e "s/\"//g" )
                 }
 
+                # Ça peut servir si l'on veut ajouter des plugin de github.
+                # Comme dans le cas des plugins pour Alex
                 function installer() {
                   while IFS= read -r PLUGIN
                   do
@@ -128,8 +130,13 @@ Resources:
                   done < $1
                 }
 
+                function install_moodle_from_bitbucket(){
+                  git clone -b UQAM_37_DEV --single-branch "https://x-token-auth:$1@bitbucket.org/uqam/moodle" /var/www/html/moodle
+                }
+
                 #installer "components.txt"
-                get_token
+                token=$(get_token)
+                install_moodle_from_bitbucket ${!token}
               mode: 000500
               owner: root
             # Installer directement des dépôts à revoir pour Bitbucket
