@@ -28,6 +28,7 @@ Voir aussi:
 ## Autoscaling
 
 - https://medium.com/@lvthillo/aws-auto-scaling-based-on-memory-utilization-in-cloudformation-159676b6f4d6
+- https://aws.amazon.com/blogs/devops/use-a-creationpolicy-to-wait-for-on-instance-configurations/
 
 Attention au problèmes qui pourrait venir avec EFS (merci Matt Porrit de Catalyst). Il serait une très mauvaise idée de mettre les sessions dans une share de ce genre.
 - https://ops.tips/blog/limits-aws-efs-nfs-locks/ (ça a été augmenté... )
