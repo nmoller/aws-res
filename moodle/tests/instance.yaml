@@ -81,7 +81,10 @@ Resources:
       CidrIp: 132.208.0.0/16
       #CidrIp: 0.0.0.0/0
   
-
+#TODO: 
+# Installer crontabs
+# configurer cron pour rouler instance de cron
+# Ajouter muc/config.php pour application cache
   VM:
     Type: AWS::EC2::Instance
     DependsOn: PublicSubnet1
