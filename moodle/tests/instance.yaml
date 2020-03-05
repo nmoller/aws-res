@@ -86,6 +86,7 @@ Resources:
 # configurer cron pour rouler instance de cron
 # /var/spool/cron/apache
 # */3 * * * * /usr/bin/php /var/www/html/moodle/admin/cli/cron.php
+# L'utilisateur apache existe après installation de httpd.
 
 # Ajouter muc/config.php pour application cache
   VM:
