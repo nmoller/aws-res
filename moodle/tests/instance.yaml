@@ -84,6 +84,9 @@ Resources:
 #TODO: 
 # Installer crontabs
 # configurer cron pour rouler instance de cron
+# /var/spool/cron/apache
+# */3 * * * * /usr/bin/php /var/www/html/moodle/admin/cli/cron.php
+
 # Ajouter muc/config.php pour application cache
   VM:
     Type: AWS::EC2::Instance
