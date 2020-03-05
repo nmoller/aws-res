@@ -195,6 +195,16 @@ Resources:
       InstanceType: !Ref WebInstanceType
       KeyName: !Ref EC2KeyName
       SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: uqam:sec
+          Value: 4
+        - Key: uqam:env
+          Value: test
+        - Key: uqam:nuke
+          Value: Y
+        - Key: uqam:nom
+          Value: ena-moodle-dev-01
+
       UserData:
         "Fn::Base64":
           !Sub |
