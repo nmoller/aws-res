@@ -141,11 +141,19 @@ Resources:
                   git clone -b UQAM_37_DEV --single-branch "https://x-token-auth:$1@bitbucket.org/uqam/moodle" /var/www/html/moodle
                 }
 
+                function get_configphp_from_bitbucket(){
+                  git clone -b UQAM_30_k8s-PROD --single-branch "https://x-token-auth:$1@bitbucket.org/uqam/configphp.git" /tmp/config
+                }
+
                 #installer "components.txt"
                 token=$(get_token)
                 install_moodle_from_bitbucket ${!token}
+                get_configphp_from_bitbucket ${!token}
+                mv /tmp/config/config.php /var/www/html/moodle
                 # ne pas oublier commande pour modifier caches, ça doit etre apres installation moodle.
-                # sed -i 's#\$this->options\[Memcached::OPT_BUFFER_WRITES\] = \$bufferwrites;#\$this->options[Memcached::OPT_CLIENT_MODE] = Memcached::DYNAMIC_CLIENT_MODE;#' cache/stores/memcached/lib.php
+                sed -i \
+                's#\$this->options\[Memcached::OPT_BUFFER_WRITES\] = \$bufferwrites;#\$this->options[Memcached::OPT_CLIENT_MODE] = Memcached::DYNAMIC_CLIENT_MODE;#'\
+                 /var/www/html/moodle/cache/stores/memcached/lib.php
               mode: 000500
               owner: root
             # Installer directement des dépôts à revoir pour Bitbucket
@@ -220,6 +228,19 @@ Resources:
             #!/bin/bash -xe
             yum update -y
             
+            # viendront par les valeurs du template cfn
+            echo "export MDL_DBTYPE='mysqli'" >> /etc/profile
+            echo "export MDL_DBHOST='test'" >> /etc/profile
+            echo "export MDL_DBNAME='test.db'" >> /etc/profile
+            echo "export MDL_DBUSER='user'" >> /etc/profile
+            echo "export MDL_DBPASS='pass'" >> /etc/profile
+            echo "export MDL_WWWROOT='test.com'" >> /etc/profile
+            echo "export MDL_MEMSESSION='memcached-sessions'" >> /etc/profile
+            # pour eviter problemes EFS sont dans des dossiers diff et non sous-dossiers
+            echo "export MDL_DATAROOT=/var/www/moodle/data" >> /etc/profile
+            echo "export MDL_TEMPDIR='/var/www/moodle/temp'" >> /etc/profile
+            echo "export MDL_CACHEDIR='/var/www/moodle/cache'" >> /etc/profile
+            echo "export MDL_LOCALCACHEDIR='/var/www/moodle/local'" >> /etc/profile
 
             #Create directory structure
             mkdir -p /var/www/moodle/html
