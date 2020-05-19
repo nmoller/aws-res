@@ -130,38 +130,38 @@ Resources:
                 
                 [/var/log/cloud-init.log]
                 file = /var/log/cloud-init.log
-                log_group_name = 'Test'
+                log_group_name = 'Moodle'
                 log_stream_name = {instance_id}/cloud-init.log
                 datetime_format = 
                 
                 [/var/log/cloud-init-output.log]
                 file = /var/log/cloud-init-output.log
-                log_group_name = 'Test'
+                log_group_name = 'Moodle'
                 log_stream_name = {instance_id}/cloud-init-output.log
                 datetime_format = 
                 
                 [/var/log/cfn-init.log]
                 file = /var/log/cfn-init.log
-                log_group_name = 'Test'
+                log_group_name = 'Moodle'
                 log_stream_name = {instance_id}/cfn-init.log
                 datetime_format = 
                 
                 [/var/log/cfn-hup.log]
                 file = /var/log/cfn-hup.log
-                log_group_name = 'Test'
+                log_group_name = 'Moodle'
                 log_stream_name = {instance_id}/cfn-hup.log
                 datetime_format = 
                 
                 [/var/log/cfn-wire.log]
                 file = /var/log/cfn-wire.log
-                log_group_name = 'Test'
+                log_group_name = 'Moodle'
                 log_stream_name = {instance_id}/cfn-wire.log
                 datetime_format = 
                 
                 [/var/log/httpd]
                 file = /var/log/httpd/*
-                log_group_name = 'Test'
-                log_stream_name = {instance_id}/httpd
+                log_group_name = 'Moodle'
+                log_stream_name = httpd
                 datetime_format = %d/%b/%Y:%H:%M:%S
                 
               mode: '000444'

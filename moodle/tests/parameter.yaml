@@ -1,0 +1,17 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: parametre pour avoir accès lecture a bitbucket.
+
+Parameters:
+  bbacceskey:
+    Type: String
+    Default: ''
+
+Resources:
+  bitbucket:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: bitbucket
+      Value: !Ref bbacceskey
+      Type: String

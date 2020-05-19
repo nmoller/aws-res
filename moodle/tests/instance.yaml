@@ -144,6 +144,8 @@ Resources:
                 #installer "components.txt"
                 token=$(get_token)
                 install_moodle_from_bitbucket ${!token}
+                # ne pas oublier commande pour modifier caches, ça doit etre apres installation moodle.
+                # sed -i 's#\$this->options\[Memcached::OPT_BUFFER_WRITES\] = \$bufferwrites;#\$this->options[Memcached::OPT_CLIENT_MODE] = Memcached::DYNAMIC_CLIENT_MODE;#' cache/stores/memcached/lib.php
               mode: 000500
               owner: root
             # Installer directement des dépôts à revoir pour Bitbucket
@@ -218,6 +220,7 @@ Resources:
             #!/bin/bash -xe
             yum update -y
             
+
             #Create directory structure
             mkdir -p /var/www/moodle/html
             mkdir -p /var/www/moodle/data
