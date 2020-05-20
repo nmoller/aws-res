@@ -1,0 +1,43 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:  Manifest to create EFS to store data.
+
+Parameters:
+  Vpc:
+    AllowedPattern: ^(vpc-)([a-z0-9]{8}|[a-z0-9]{17})$
+    Description: The Vpc Id of an existing Vpc.
+    Type: AWS::EC2::VPC::Id
+
+  WebSecurityGroup:
+    Description: Select the Amazon web security group.
+    Type: AWS::EC2::SecurityGroup::Id
+
+  Subnet:
+    Description: Select existing subnets.
+    Type: List<AWS::EC2::Subnet::Id>
+
+Resources:
+  EFSData:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      PerformanceMode: generalPurpose
+
+  EFSDataMountTarget:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref EFSData
+      SecurityGroups:
+      - !Ref EfsSecurityGroup
+      SubnetId: !Select [ 0, !Ref Subnet ] 
+
+  EfsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for EFS mount targets
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          SourceSecurityGroupId: !Ref WebSecurityGroup
