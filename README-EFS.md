@@ -30,3 +30,5 @@ fs-90a7227d.efs.ca-central-1.amazonaws.com:/ 9007199254739968       0 9007199254
 [root@ip-10-192-10-37 test]# ls
 test.txt
 ```
+
+Pas de problèmes pour effacer les stacks... j'avais peur de que certains choses du stack efs dependaient du stack web.
