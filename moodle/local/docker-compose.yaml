@@ -1,0 +1,36 @@
+webserver:
+  image: amazonlinux:2.0.20200406.0
+  volumes:
+  #  - /home/nmoller/docker/moodledata:/var/www/moodledata
+    - /home/nmoller/dev/aws/test/moodle:/var/www/moodle/html
+  environment:
+    MDL_DBTYPE: mysqli
+    MDL_DBHOST: mysqlserver
+    MDL_DBNAME: moodle
+    MDL_DBUSER: root
+    MDL_DBPASS: root
+    MDL_WWWROOT: 'http://localhost:8180'
+    MDL_MEMSESSION: memsession
+    MDL_DATAROOT: '/var/www/moodledata'
+    MDL_LOCALCACHEDIR: '/tmp'
+
+  # Command bidon pour que le container reste alive
+  command: sleep infinity
+
+  links:
+    - mysqlserver
+    - memsession
+
+  ports:
+    - "8180:80"
+
+mysqlserver:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: moodle
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - /home/nmoller/docker/moodle-mysql/mysql:/var/lib/mysql
+
+memsession:
+  image: memcached
