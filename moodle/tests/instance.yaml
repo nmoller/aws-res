@@ -78,8 +78,18 @@ Resources:
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
-      CidrIp: 132.208.0.0/16
-      #CidrIp: 0.0.0.0/0
+      #CidrIp: 132.208.0.0/16
+      CidrIp: 0.0.0.0/0
+
+  VPCDefaultSecurityGroupIngressWeb: 
+    Type : AWS::EC2::SecurityGroupIngress
+    Properties : 
+      GroupId: !GetAtt VPC.DefaultSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      #CidrIp: 132.208.0.0/16
+      CidrIp: 0.0.0.0/0
   
 #TODO: 
 # Installer crontabs
@@ -206,6 +216,17 @@ Resources:
                 fi
               mode: 000500
               owner: root
+          commands:
+            run:
+              command: /tmp/create_site_conf.sh
+              cwd: /tmp
+              ignoreErrors: false
+
+          services:
+            sysvinit:
+              httpd:
+                enabled: true
+                ensureRunning: true
           
     Properties:
       ImageId: !Ref LatestAmiId
@@ -250,7 +271,7 @@ Resources:
             mkdir -p /var/www/moodle/local
           
             #Run CloudFormation Init Scripts
-            /opt/aws/bin/cfn-init --configsets install_moodle --verbose --stack ${AWS::StackName} --resource VM --region ${AWS::Region}
+            /opt/aws/bin/cfn-init --configsets deploy_webserver --verbose --stack ${AWS::StackName} --resource VM --region ${AWS::Region}
             #/opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource WebAutoScalingGroup --region ${AWS::Region}
 
 Outputs:
