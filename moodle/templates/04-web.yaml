@@ -30,8 +30,8 @@ Metadata:
       Parameters:
         - DatabaseClusterEndpointAddress
         - DatabaseName
-        - DatabaseMasterUsername
-        - DatabaseMasterPassword
+        # - DatabaseMasterUsername
+        # - DatabaseMasterPassword
         - DatabaseClusterEndpointAddress
         - ElastiCacheClusterEndpointAddress
     - Label:
@@ -41,10 +41,10 @@ Metadata:
     ParameterLabels:
       DatabaseClusterEndpointAddress:
         default: DB Cluster Endpoint Address
-      DatabaseMasterUsername:
-        default: DB Master Username  
-      DatabaseMasterPassword:
-        default: DB Master Password
+      # DatabaseMasterUsername:
+      #   default: DB Master Username  
+      # DatabaseMasterPassword:
+      #   default: DB Master Password
       DatabaseName:
         default: DB Name
       ElastiCacheClusterEndpointAddress:
@@ -84,20 +84,22 @@ Parameters:
   DatabaseClusterEndpointAddress:
     Description: The RDS cluster endpoint address.
     Type: String
-  DatabaseMasterUsername:
-    AllowedPattern: ^([a-zA-Z0-9]*)$
-    Description: The Amazon RDS master username.
-    ConstraintDescription: Must contain only alphanumeric characters and be at least 8 characters.
-    MaxLength: 16
-    MinLength: 1
-    Type: String
-  DatabaseMasterPassword:
-    AllowedPattern: ^([a-z0-9A-Z`~!#$%^&*()_+,\\-])*$
-    ConstraintDescription: Must be letters (upper or lower), numbers, and these special characters '_'`~!#$%^&*()_+,-
-    Description: The Amazon RDS master password.
-    MaxLength: 41
-    MinLength: 8
-    NoEcho: true
+  # DatabaseMasterUsername:
+  #   AllowedPattern: ^([a-zA-Z0-9]*)$
+  #   Description: The Amazon RDS master username.
+  #   ConstraintDescription: Must contain only alphanumeric characters and be at least 8 characters.
+  #   MaxLength: 16
+  #   MinLength: 1
+  #   Type: String
+  # DatabaseMasterPassword:
+  #   AllowedPattern: ^([a-z0-9A-Z`~!#$%^&*()_+,\\-])*$
+  #   ConstraintDescription: Must be letters (upper or lower), numbers, and these special characters '_'`~!#$%^&*()_+,-
+  #   Description: The Amazon RDS master password.
+  #   MaxLength: 41
+  #   MinLength: 8
+  #   NoEcho: true
+  #   Type: String
+  MyRDSInstanceSecretArn:
     Type: String
   DatabaseName:
     AllowedPattern: ^([a-zA-Z0-9]*)$
@@ -260,7 +262,7 @@ Parameters:
     Default: en
   LatestAmiId :
     Type : AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
 
 
 Conditions:
@@ -353,6 +355,15 @@ Resources:
             - autoscaling:DescribeLifecycleHooks
             Resource:
             - arn:aws:autoscaling:*:*:*
+      - PolicyName: SecretManager
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Effect: Allow
+            Action:
+            - secretsmanager:GetSecretValue
+            Resource:
+            - !Ref MyRDSInstanceSecretArn
   Logs: 
       Type: AWS::Logs::LogGroup
       DeletionPolicy: Retain
@@ -455,32 +466,20 @@ Resources:
       AWS::CloudFormation::Init:
         configSets:
           deploy_webserver:
-            - use_php_extras
             - install_logs
             - install_webserver
             - install_moodle
             - install_cacheclient
             - install_opcache
             - start_webserver
-        use_php_extras:
-          command: amazon-linux-extras install -y php7.3=7.3.13
         install_webserver:
-          packages:
-            yum:
-              awslogs: []
-              httpd24: []
-              postgresql93: []
-              php-pgsql: []
-              php-gd: []
-              php-soap: []
-              php-intl: []
-              php-mbstring: []
-              php-xmlrpc: []
-              php-zip: []
           files:
             /tmp/create_site_conf.sh:
               content: !Sub |
                 #!/bin/bash -xe
+                amazon-linux-extras install -y php7.3 postgresql9.6 
+                yum install -y awslogs httpd php-pgsql php-gd php-soap php-intl php-mbstring php-xmlrpc php-zip
+                sed -i 's/memory_limit =.*/memory_limit = 2048M/' /etc/php.ini
                 if [ ! -f /etc/httpd/conf.d/moodle.conf ]; then                    
                    touch /etc/httpd/conf.d/moodle.conf
                    echo 'ServerName 127.0.0.1:80' >> /etc/httpd/conf.d/moodle.conf
@@ -562,7 +561,7 @@ Resources:
               command: mkdir -p /var/awslogs/state
           services:
             sysvinit:
-              awslogs:
+              awslogsd:
                 enabled: 'true'
                 ensureRunning: 'true'
                 files: /etc/awslogs/awslogs.conf
@@ -577,81 +576,97 @@ Resources:
           files:
             /tmp/config.php:
               content: !Sub |
-                <?php
-                $CFG = new stdClass;
-                $CFG->dbtype = 'pgsql';
-                $CFG->dblibrary = 'native';
-                $CFG->dbhost = '${DatabaseClusterEndpointAddress}';
-                $CFG->dbname = '${DatabaseName}';
-                $CFG->dbuser = '${DatabaseMasterUsername}';
-                $CFG->dbpass = '${DatabaseMasterPassword}';
-                $CFG->prefix = 'mdl_';
-                $CFG->lang = '${MoodleLocale}';
-                $CFG->dboptions = array(
-                  'dbpersist' => false,
-                  'dbsocket' => false,
-                  'dbport' => '',
-                  'dbhandlesoptions' => false,
-                  'dbcollation' => 'utf8mb4_unicode_ci',
-                );
-                // Hostname definition //
-                $hostname = '${DomainName}';
-                if ($hostname == '') {
-                  $hostwithprotocol = '${PublicAlbHostname}';
-                }
-                else {
-                  $hostwithprotocol = 'https://' . strtolower($hostname);
-                }
-                $CFG->wwwroot = strtolower($hostwithprotocol);
-                $CFG->sslproxy = (substr($hostwithprotocol,0,5)=='https' ? true : false);
-                // Moodledata location //
-                $CFG->dataroot = '/var/www/moodle/data';
-                $CFG->tempdir = '/var/www/moodle/temp';
-                $CFG->cachedir = '/var/www/moodle/cache';
-                $CFG->localcachedir = '/var/www/moodle/local';
-                // Configure Session Cache
-                $SessionEndpoint = '${ElastiCacheClusterEndpointAddress}';
-                if ($SessionEndpoint != '') {
-                  $CFG->dbsessions = false;
-                  $CFG->session_handler_class = '\core\session\memcached';
-                  $CFG->session_memcached_save_path = $SessionEndpoint;
-                  $CFG->session_memcached_prefix = 'memc.sess.key.';
-                  $CFG->session_memcached_acquire_lock_timeout = 120;
-                  $CFG->session_memcached_lock_expire = 7200;
-                  $CFG->session_memcached_lock_retry_sleep = 150;
-                }
-                require_once(__DIR__ . '/lib/setup.php');
-                // END OF CONFIG //
-                ?>
+                  <?php
+                  require 'lib/aws.phar';
+                  use Aws\SecretsManager\SecretsManagerClient;
+                  use Aws\Exception\AwsException;
+                  use Aws\Iam\IamClient;
+
+                  $client = new SecretsManagerClient([
+                      'version' => '2017-10-17',
+                      'region' => 'us-east-1',
+                  ]);
+
+                  $secretName = '${MyRDSInstanceSecretArn}';
+
+                  try {
+                      $result = $client->getSecretValue([
+                          'SecretId' => $secretName,
+                      ]);
+
+                  } catch (AwsException $e) {
+                      $error = $e->getAwsErrorCode();
+                  }
+                  // Decrypts secret using the associated KMS CMK.
+                  // Depending on whether the secret is a string or binary, one of these fields will be populated.
+                  if (isset($result['SecretString'])) {
+                      $secret = $result['SecretString'];
+                  } 
+                  $CFG = new stdClass;
+                  $CFG->dbtype = 'pgsql';
+                  $CFG->dblibrary = 'native';
+                  $CFG->dbhost = '${DatabaseClusterEndpointAddress}';
+                  $CFG->dbname = '${DatabaseName}';
+                  $CFG->dbuser = json_decode($secret)->{'username'};
+                  $CFG->dbpass = json_decode($secret)->{'password'};
+                  $CFG->prefix = 'mdl_';
+                  $CFG->lang = '${MoodleLocale}';
+                  $CFG->dboptions = array(
+                    'dbpersist' => false,
+                    'dbsocket' => false,
+                    'dbport' => '',
+                    'dbhandlesoptions' => false,
+                    'dbcollation' => 'utf8mb4_unicode_ci',
+                  );
+                  // Hostname definition //
+                  $hostname = '${DomainName}';
+                  if ($hostname == '') {
+                    $hostwithprotocol = '${PublicAlbHostname}';
+                  }
+                  else {
+                    $hostwithprotocol = 'https://' . strtolower($hostname);
+                  }
+                  $CFG->wwwroot = strtolower($hostwithprotocol);
+                  $CFG->sslproxy = (substr($hostwithprotocol,0,5)=='https' ? true : false);
+                  // Moodledata location //
+                  $CFG->dataroot = '/var/www/moodle/data';
+                  $CFG->tempdir = '/var/www/moodle/temp';
+                  $CFG->cachedir = '/var/www/moodle/cache';
+                  $CFG->localcachedir = '/var/www/moodle/local';
+                  $CFG->directorypermissions = 02777;
+                  $CFG->admin = 'admin';
+                  // Configure Session Cache
+                  $SessionEndpoint = '${ElastiCacheClusterEndpointAddress}';
+                  if ($SessionEndpoint != '') {
+                    $CFG->dbsessions = false;
+                    $CFG->session_handler_class = '\core\session\memcached';
+                    $CFG->session_memcached_save_path = $SessionEndpoint;
+                    $CFG->session_memcached_prefix = 'memc.sess.key.';
+                    $CFG->session_memcached_acquire_lock_timeout = 120;
+                    $CFG->session_memcached_lock_expire = 7100;
+                    $CFG->session_memcached_lock_retry_sleep = 150;
+                  }
+                  //@error_reporting(E_ALL | E_STRICT);   // NOT FOR PRODUCTION SERVERS!
+                  //@ini_set('display_errors', '1');         // NOT FOR PRODUCTION SERVERS!
+                  //$CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
+                  //$CFG->debugdisplay = 1; 
+                  require_once(__DIR__ . '/lib/setup.php');
+                  // END OF CONFIG //
+                  ?>
               mode: '000755'
               owner: root
               group: root
+            
             /tmp/install_moodle.sh:
               content:  !Sub |
                 #!/bin/bash -xe
-
-                #
-                # to install packages from open repositories
-                # Pour éviter: 
-                # Template format error: Unresolved resource 
-                # dependencies [MOODLE_BASE, DIR] in the 
-                # Resources block of the template
-                # nous n'utilisons pas des variables
-                # 
-                install_package(){
-                    wget -O /tmp/$1.tgz $2
-                    if [ ! -d "/var/www/moodle/html/$3" ]; then
-                        mkdir -p "/var/www/moodle/html/$3"
-                    fi
-                    tar -xvzf /tmp/$1.tgz --strip-components=1 -C "/var/www/moodle/html/$3"
-                }
-
-                install_package moodle https://github.com/moodle/moodle/archive/v3.8.1.tar.gz ''
-                install_package theme1 https://github.com/moodleuulm/moodle-theme_boost_campus/archive/v3.7-r4.tar.gz theme/boost_campus
-                mv /tmp/config.php /var/www/moodle/html/config.php
+                wget -O /tmp/moodle.tgz https://download.moodle.org/download.php/direct/stable38/moodle-3.8.3.tgz
+                tar -xvzf /tmp/moodle.tgz --strip-components=1 -C /var/www/moodle/html/
+                wget -O /var/www/moodle/html/lib/aws.phar https://docs.aws.amazon.com/aws-sdk-php/v3/download/aws.phar
+                cp /tmp/config.php /var/www/moodle/html/config.php
                 chown -R root:apache /var/www/moodle/html
                 chown -R apache:apache /var/www/moodle/local
-
+                
               mode: 000500
               owner: root
               group: root
@@ -675,8 +690,8 @@ Resources:
                   sudo yum remove -y php-pecl-memcached
                   
                   wget -P /tmp/ https://elasticache-downloads.s3.amazonaws.com/ClusterClient/PHP-7.3/latest-64bit
-                  tar -xf '/tmp/latest-64bit'
-                  cp '/tmp/artifact/amazon-elasticache-cluster-client.so' /usr/lib64/php/modules/
+                  tar -xf '/tmp/latest-64bit' 
+                  cp '/tmp/amazon-elasticache-cluster-client.so' /usr/lib64/php/modules/
                   if [ ! -f /etc/php.d/50-memcached.ini ]; then
                       touch /etc/php.d/50-memcached.ini
                   fi
