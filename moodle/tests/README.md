@@ -1,5 +1,12 @@
 # Moodle AWS
 
+La clé privé pour se connecter aux instances `moodle-ena.pem` est dans la voute
+
+`PS-SI-Moodle > Comptes Cloud > Documents`
+
+
+### Apache avec php-fpm
+
 S'assurer de connaître dans quel mod on roule php et parametriser de manière adécuate:
 
 - https://stackoverflow.com/questions/16414054/find-out-how-php-is-running-on-server-cgi-or-fastcgi-or-mod-php
@@ -11,14 +18,14 @@ S'assurer de connaître dans quel mod on roule php et parametriser de manière a
  Nous roulons en mode `dynamic`
 
 
+### Modification core pour installation aurora
+
 Ne pas oublier pour la BD le billet 
 - https://tracker.moodle.org/browse/MDL-58931
 - https://stackoverflow.com/questions/45043269/moodle-with-amazon-aurora-index-column-size-too-large-the-maximum-column-size
 
 Pour utiliser read-write options 
 - https://tracker.moodle.org/browse/MDL-19711
-
-### Modification core pour installation aurora
 
 Modifier le fichier `lib/dml/mysqli_native_moodle_database.php`
 
