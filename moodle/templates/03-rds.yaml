@@ -144,19 +144,34 @@ Conditions:
     !Equals ['', !Ref DatabaseCmk]
 
 Resources:
+  # From https://docs.moodle.org/38/en/MySQL_full_unicode_support
+  DBClusterParameterGroup:
+    Type: 'AWS::RDS::DBClusterParameterGroup'
+    Properties:
+      Description: Test param group
+      Family: 'aurora-mysql5.7'
+      Parameters: 
+        innodb_file_format: Barracuda
+        innodb_file_per_table: 1
+        character_set_database: utf8mb4
+        character_set_client: utf8mb4
+        character-set-client-handshake: 0
+        character_set_server: utf8mb4
+        collation_server: utf8mb4_unicode_ci
+
   DatabaseCluster:
     Type: AWS::RDS::DBCluster
     Properties:
       BackupRetentionPeriod: 30
       DatabaseName: !Ref DatabaseName
       DBSubnetGroupName: !Ref DataSubnetGroup
-      Engine: aurora-postgresql
-      DBClusterParameterGroupName: default.aurora-postgresql11
+      Engine: aurora-mysql #compatible mysql5.7
+      DBClusterParameterGroupName: !Ref DBClusterParameterGroup
       KmsKeyId:
         !If [ UseAWS-ManagedCMK, !Ref 'AWS::NoValue', !Ref DatabaseCmk ]
       MasterUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSInstanceSecretArn, ':SecretString:username}}' ]]
       MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSInstanceSecretArn, ':SecretString:password}}' ]]
-      Port: 5432
+      Port: 3306
       StorageEncrypted: !Ref DatabaseEncrpytedBoolean
       Tags:
         - Key: Name
@@ -172,7 +187,7 @@ Resources:
       DBClusterIdentifier: !Ref DatabaseCluster
       DBInstanceClass: !Ref DatabaseInstanceType
       DBSubnetGroupName: !Ref DataSubnetGroup
-      Engine: aurora-postgresql
+      Engine: aurora-mysql
       Tags:
         - Key: Name
           Value: !Join [ '', [ 'Moodle / ', !Ref 'AWS::StackName' ] ]
@@ -185,7 +200,7 @@ Resources:
       DBClusterIdentifier: !Ref DatabaseCluster
       DBInstanceClass: !Ref DatabaseInstanceType
       DBSubnetGroupName: !Ref DataSubnetGroup
-      Engine: aurora-postgresql
+      Engine: aurora-mysql
       Tags:
         - Key: Name
           Value: !Join [ '', [ 'Moodle / ', !Ref 'AWS::StackName' ] ]

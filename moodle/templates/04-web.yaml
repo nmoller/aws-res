@@ -609,7 +609,7 @@ Resources:
                       $secret = $result['SecretString'];
                   } 
                   $CFG = new stdClass;
-                  $CFG->dbtype = 'pgsql';
+                  $CFG->dbtype = 'mysqli';
                   $CFG->dblibrary = 'native';
                   $CFG->dbhost = '${DatabaseClusterEndpointAddress}';
                   $CFG->dbname = '${DatabaseName}';
