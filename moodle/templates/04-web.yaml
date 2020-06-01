@@ -472,6 +472,8 @@ Resources:
             - install_cacheclient
             - install_opcache
             - start_webserver
+          tester_moodle:
+            - install_moodle
         install_webserver:
           files:
             /tmp/create_site_conf.sh:
@@ -573,6 +575,10 @@ Resources:
               cwd: /tmp
               ignoreErrors: true
         install_moodle:
+          packages:
+            yum:
+              jq: []
+              git: []
           files:
             /tmp/config.php:
               content: !Sub |
@@ -660,8 +666,21 @@ Resources:
             /tmp/install_moodle.sh:
               content:  !Sub |
                 #!/bin/bash -xe
-                wget -O /tmp/moodle.tgz https://download.moodle.org/download.php/direct/stable38/moodle-3.8.3.tgz
-                tar -xvzf /tmp/moodle.tgz --strip-components=1 -C /var/www/moodle/html/
+
+                function get_token() {
+                  echo -n $( curl -s -u "{{resolve:ssm:bitbucket:1}}" \
+                    https://bitbucket.org/site/oauth2/access_token \
+                    -d grant_type=client_credentials | \
+                    jq '.access_token'| sed -e "s/\"//g" )
+                }
+
+                function install_moodle_from_bitbucket(){
+                  git clone -b UQAM_39_AWS --single-branch "https://x-token-auth:$1@bitbucket.org/uqam/moodle" /var/www/moodle/html
+                }
+
+                token=$(get_token)
+                install_moodle_from_bitbucket ${!token}
+
                 wget -O /var/www/moodle/html/lib/aws.phar https://docs.aws.amazon.com/aws-sdk-php/v3/download/aws.phar
                 cp /tmp/config.php /var/www/moodle/html/config.php
                 chown -R root:apache /var/www/moodle/html
@@ -698,8 +717,6 @@ Resources:
                   echo 'extension=/usr/lib64/php/modules/amazon-elasticache-cluster-client.so;' >> /etc/php.d/50-memcached.ini
                   echo 'extension=igbinary.so;' >> /etc/php.d/50-memcached.ini
                   
-                  #update Moodle source to use DYNAMIC_CLIENT_MODE so Moodle can detect changes to the elasticache cluster membership
-                  sed -i '/\$this->options\[Memcached::OPT_BUFFER_WRITES\] = \$bufferwrites;/a \ \ \ \ \ \ \ \ $this->options[Memcached::OPT_CLIENT_MODE] = Memcached::DYNAMIC_CLIENT_MODE;' /var/www/moodle/html/cache/stores/memcached/lib.php
                   
               mode: 000500
               owner: root
@@ -773,6 +790,7 @@ Resources:
             
             #Run CloudFormation Init Scripts
             /opt/aws/bin/cfn-init --configsets deploy_webserver --verbose --stack ${AWS::StackName} --resource WebLaunchConfiguration --region ${AWS::Region}
+            #/opt/aws/bin/cfn-init --configsets tester_moodle --verbose --stack ${AWS::StackName} --resource WebLaunchConfiguration --region ${AWS::Region}
             /opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource WebAutoScalingGroup --region ${AWS::Region}
 
 
