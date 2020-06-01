@@ -472,16 +472,17 @@ Resources:
             - install_cacheclient
             - install_opcache
             - start_webserver
-          tester_moodle:
-            - install_moodle
         install_webserver:
           files:
             /tmp/create_site_conf.sh:
               content: !Sub |
                 #!/bin/bash -xe
-                amazon-linux-extras install -y php7.3 postgresql9.6 
+                amazon-linux-extras install -y php7.3
                 yum install -y awslogs httpd php-pgsql php-gd php-soap php-intl php-mbstring php-xmlrpc php-zip
                 sed -i 's/memory_limit =.*/memory_limit = 2048M/' /etc/php.ini
+                sed -i 's/max_execution_time = 30/max_execution_time = 300/' /etc/php.ini
+                sed -i 's/post_max_size = 8M/post_max_size = 200M/' /etc/php.ini
+                sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 200M/' /etc/php.ini
                 if [ ! -f /etc/httpd/conf.d/moodle.conf ]; then                    
                    touch /etc/httpd/conf.d/moodle.conf
                    echo 'ServerName 127.0.0.1:80' >> /etc/httpd/conf.d/moodle.conf
@@ -654,8 +655,10 @@ Resources:
                   }
                   //@error_reporting(E_ALL | E_STRICT);   // NOT FOR PRODUCTION SERVERS!
                   //@ini_set('display_errors', '1');         // NOT FOR PRODUCTION SERVERS!
-                  //$CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
-                  //$CFG->debugdisplay = 1; 
+                  // pendant tests de charge.
+                  $CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
+                  $CFG->debugdisplay = 1; 
+                  $CFG->tool_generator_users_password = 'pAzzW0rd';
                   require_once(__DIR__ . '/lib/setup.php');
                   // END OF CONFIG //
                   ?>
@@ -790,7 +793,6 @@ Resources:
             
             #Run CloudFormation Init Scripts
             /opt/aws/bin/cfn-init --configsets deploy_webserver --verbose --stack ${AWS::StackName} --resource WebLaunchConfiguration --region ${AWS::Region}
-            #/opt/aws/bin/cfn-init --configsets tester_moodle --verbose --stack ${AWS::StackName} --resource WebLaunchConfiguration --region ${AWS::Region}
             /opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource WebAutoScalingGroup --region ${AWS::Region}
 
 
