@@ -581,6 +581,13 @@ Resources:
               jq: []
               git: []
           files:
+            /etc/httpd/conf.d/remoteip.conf:
+              content: !Sub |
+                RemoteIPHeader X-Forwarded-For
+              mode: '000644'
+              owner: root
+              group: root
+
             /tmp/config.php:
               content: !Sub |
                   <?php
