@@ -644,17 +644,11 @@ Resources:
             # https://twitter.com/mudrd8mz/status/1266314871576186881
             /var/spool/cron/apache:
               content: !Sub |
-                */7 * * * * /usr/bin/php /var/www/moodle/html/admin/cli/cron.php
+                */7 * * * * /usr/bin/php /var/www/moodle/html/admin/cli/cron.php > /dev/null
               mode: '000600'
               owner: apache
               group: apache
-            # Une fois par jour effacer les messages
-            /var/spool/cron/root:
-              content: !Sub |
-                3 1 * * * > /var/spool/mail/root
-              mode: '000600'
-              owner: root
-              group: root
+            
           packages:
             yum:
               cronie: []
