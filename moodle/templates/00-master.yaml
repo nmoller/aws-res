@@ -1076,6 +1076,45 @@ Resources:
         ElastiCacheClusterEndpointAddress:
           !GetAtt sessioncache.Outputs.ElastiCacheClusterEndpointAddress
       TemplateURL: https://enatemplates.s3.ca-central-1.amazonaws.com/04-web.yaml
+  croncached:
+    DependsOn: [ publicalb, rds, efsfilesystem, sessioncache ]
+    Condition: DeployWithSessionCache
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        DatabaseClusterEndpointAddress:
+          !GetAtt [ rds, Outputs.DatabaseClusterEndpointAddress ]
+        # DatabaseMasterUsername:
+        #   !Ref DatabaseMasterUsername
+        MyRDSInstanceSecretArn:
+          !Ref MyRDSInstanceSecret
+        DatabaseName:
+          !Ref DatabaseName
+        ElasticFileSystem:
+          !GetAtt [ efsfilesystem, Outputs.ElasticFileSystem ]
+        EC2KeyName:
+          !Ref EC2KeyName
+        NumberOfSubnets:
+          !Ref NumberOfAZs
+        PublicAlbTargetGroupArn:
+          !GetAtt [ publicalb, Outputs.PublicAlbTargetGroupArn ]
+        PublicAlbHostname:
+          !GetAtt [ publicalb, Outputs.PublicAlbHostname ]
+        SslCertificate:
+          !GetAtt [ publicalb, Outputs.SslCertificate ]
+        WebInstanceType:
+          !Ref WebInstanceType
+        WebSecurityGroup:
+          !GetAtt [ securitygroups, Outputs.WebSecurityGroup ]
+        Subnet:
+          !GetAtt [ vpc, Outputs.WebSubnet ]
+        DomainName:
+          !Ref DomainName
+        MoodleLocale:
+          !Ref MoodleLocale
+        ElastiCacheClusterEndpointAddress:
+          !GetAtt sessioncache.Outputs.ElastiCacheClusterEndpointAddress
+      TemplateURL: https://enatemplates.s3.ca-central-1.amazonaws.com/04-cron.yaml
   cloudfront:
     Condition: DeployCloudFront
     DependsOn: publicalb    
