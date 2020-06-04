@@ -462,6 +462,7 @@ Resources:
               git: []
           files:
             /tmp/config.php:
+              source: https://enatemplates.s3.ca-central-1.amazonaws.com/config.php
               content: !Sub |
                   <?php
                   require 'lib/aws.phar';
@@ -541,7 +542,7 @@ Resources:
                   $CFG->tool_generator_users_password = 'pAzzW0rd';
                   require_once(__DIR__ . '/lib/setup.php');
                   // END OF CONFIG //
-                  ?>
+                  
               mode: '000755'
               owner: root
               group: root
@@ -642,6 +643,7 @@ Resources:
         start_cronservice:
           files:
             # https://twitter.com/mudrd8mz/status/1266314871576186881
+            # on devrait prevoir une tâche pour > /var/spool/mail/root
             /var/spool/cron/apache:
               content: !Sub |
                 */7 * * * * /usr/bin/php /var/www/moodle/html/admin/cli/cron.php > /dev/null

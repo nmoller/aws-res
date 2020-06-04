@@ -668,7 +668,6 @@ Resources:
                   $CFG->tool_generator_users_password = 'pAzzW0rd';
                   require_once(__DIR__ . '/lib/setup.php');
                   // END OF CONFIG //
-                  ?>
               mode: '000755'
               owner: root
               group: root
