@@ -403,9 +403,11 @@ Resources:
                 sudo mkdir -p /$FILE_SYSTEM_ID/data
                 sudo mkdir -p /$FILE_SYSTEM_ID/cache
                 sudo mkdir -p /$FILE_SYSTEM_ID/temp
+                sudo mkdir -p /$FILE_SYSTEM_ID/inscription
                 chown apache:apache /$FILE_SYSTEM_ID/data/
                 chown apache:apache /$FILE_SYSTEM_ID/cache/
                 chown apache:apache /$FILE_SYSTEM_ID/temp/
+                chown apache:apache /$FILE_SYSTEM_ID/inscription/
 
                 # create data directory if not exists
                 sudo mkdir -p /$FILE_SYSTEM_ID/$DATA_DIRECTORY

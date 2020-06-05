@@ -380,7 +380,7 @@ Resources:
               content: !Sub |
                 #!/bin/bash -xe
                 amazon-linux-extras install -y php7.3
-                yum install -y awslogs httpd php-pgsql php-gd php-soap php-intl php-mbstring php-xmlrpc php-zip
+                yum install -y awslogs httpd php-pgsql php-gd php-soap php-intl php-mcrypt php-mbstring php-xmlrpc php-zip
                 sed -i 's/memory_limit =.*/memory_limit = 2048M/' /etc/php.ini
                 sed -i 's/max_execution_time = 30/max_execution_time = 300/' /etc/php.ini
                 sed -i 's/post_max_size = 8M/post_max_size = 200M/' /etc/php.ini
@@ -462,7 +462,6 @@ Resources:
               git: []
           files:
             /tmp/config.php:
-              source: https://enatemplates.s3.ca-central-1.amazonaws.com/config.php
               content: !Sub |
                   <?php
                   require 'lib/aws.phar';
@@ -540,6 +539,16 @@ Resources:
                   $CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
                   $CFG->debugdisplay = 1; 
                   $CFG->tool_generator_users_password = 'pAzzW0rd';
+
+                  date_default_timezone_set('America/Toronto');
+                  $CFG->timezone = 'America/Toronto';
+
+                  // They override any settings defined in the formats own config file.
+                  $CFG->defaultblocks_topics = 'site_main_menu,adminuq,calendar_month';
+                  $CFG->defaultblocks_weeks =  'site_main_menu,adminuq,calendar_month';
+                  $CFG->defaultblocks_topcoll = 'site_main_menu,adminuq,calendar_month';
+                  $CFG->defaultblocks_weekcoll =  'site_main_menu,adminuq,calendar_month';
+
                   require_once(__DIR__ . '/lib/setup.php');
                   // END OF CONFIG //
                   
@@ -559,7 +568,7 @@ Resources:
                 }
 
                 function install_moodle_from_bitbucket(){
-                  git clone -b UQAM_39_AWS --single-branch "https://x-token-auth:$1@bitbucket.org/uqam/moodle" /var/www/moodle/html
+                  git clone -b UQAM_39_AWS-INT --single-branch "https://x-token-auth:$1@bitbucket.org/uqam/moodle" /var/www/moodle/html
                 }
 
                 token=$(get_token)
@@ -679,11 +688,13 @@ Resources:
             mkdir -p /var/www/moodle/cache
             mkdir -p /var/www/moodle/temp
             mkdir -p /var/www/moodle/local
+            mkdir -p /var/www/moodle/inscription
             
             #Mount shared storage
             mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 ${ElasticFileSystem}.efs.${AWS::Region}.amazonaws.com:/data /var/www/moodle/data
             mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 ${ElasticFileSystem}.efs.${AWS::Region}.amazonaws.com:/cache /var/www/moodle/cache
             mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 ${ElasticFileSystem}.efs.${AWS::Region}.amazonaws.com:/temp /var/www/moodle/temp
+            mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 ${ElasticFileSystem}.efs.${AWS::Region}.amazonaws.com:/inscription /var/www/moodle/inscription
             
             #Run CloudFormation Init Scripts
             /opt/aws/bin/cfn-init --configsets deploy_cronserver --verbose --stack ${AWS::StackName} --resource CronLaunchConfiguration --region ${AWS::Region}
