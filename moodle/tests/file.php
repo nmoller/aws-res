@@ -8,7 +8,7 @@ Avec un cli du type, on télécharge le fichier d'inscriptions:
 wget http://moo-p-publi-172qihvfxhj8t-1730582042.ca-central-1.elb.amazonaws.com/local/uqregistration/download/file.php?date=20200608 -O test.txt
 */
 
-$date = $_GET['date'];
+$date = required_param('date', PARAM_INT);
 
 $requetes_rep_location = get_config('local_uqregistration', 'requetes_rep_location');
 $new = get_config('local_uqregistration', 'requetes_rep_new');
