@@ -55,6 +55,17 @@ justb4/jmeter:5.1.1 -n \
 -j /opt/jmeter/jmeter_004.log -e -o /opt/jmeter/res04
   ```
 
+Pour tester le quiz
+```
+docker run   --volume "$(pwd)":/opt/jmeter  \
+--name jmtest --rm \
+justb4/jmeter:5.1.1 -n \
+-t /opt/jmeter/quizTest001.jmx \
+-Jusersfile=/opt/jmeter/users_202006221211_3289.csv \
+-l /opt/jmeter/result_005.jtl \
+-j /opt/jmeter/jmeter_005.log -e -o /opt/jmeter/res05
+```
+
 ## Sac 
 
 https://stackoverflow.com/questions/31378039/php-session-store-error-using-memcached
