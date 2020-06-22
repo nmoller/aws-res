@@ -66,6 +66,29 @@ justb4/jmeter:5.1.1 -n \
 -j /opt/jmeter/jmeter_005.log -e -o /opt/jmeter/res05
 ```
 
+https://nmoller.github.io/aws-res/jmeter/res05/
+
+
+Nous augmentons le ASG à 3 serveurs web et relançons le test
+```
+docker run   --volume "$(pwd)":/opt/jmeter  --name jmtest --rm \
+justb4/jmeter:5.1.1 -n -t /opt/jmeter/quizTest001.jmx \
+-Jusersfile=/opt/jmeter/users_202006221211_3289.csv \
+-l /opt/jmeter/result_006.jtl -j /opt/jmeter/jmeter_006.log -e -o /opt/jmeter/res06
+```
+
+https://nmoller.github.io/aws-res/jmeter/res06/
+
+Nous augmentons la taille de la BD avec 3 serveurs(on passe à r4.xlarge):
+```
+docker run   --volume "$(pwd)":/opt/jmeter  --name jmtest --rm \
+justb4/jmeter:5.1.1 -n -t /opt/jmeter/quizTest001.jmx \
+-Jusersfile=/opt/jmeter/users_202006221211_3289.csv \
+-l /opt/jmeter/result_007.jtl -j /opt/jmeter/jmeter_007.log -e -o /opt/jmeter/res07
+```
+
+https://nmoller.github.io/aws-res/jmeter/res07/
+
 ## Sac 
 
 https://stackoverflow.com/questions/31378039/php-session-store-error-using-memcached
