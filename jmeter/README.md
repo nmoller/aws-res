@@ -55,7 +55,10 @@ justb4/jmeter:5.1.1 -n \
 -j /opt/jmeter/jmeter_004.log -e -o /opt/jmeter/res04
   ```
 
-Pour tester le quiz
+Pour tester le quiz:
+Threads (users): 100
+Ramp-up period (in seconds): 10
+
 ```
 docker run   --volume "$(pwd)":/opt/jmeter  \
 --name jmtest --rm \
