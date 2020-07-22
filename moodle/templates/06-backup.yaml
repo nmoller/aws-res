@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Backup Plan template for UQAM"
+Resources:
+  BackupVaultUqam:
+    Type: "AWS::Backup::BackupVault"
+    Properties:
+      BackupVaultName: "BackupVaultUqam"
+
+  BackupPlanUqam:
+    Type: "AWS::Backup::BackupPlan"
+    Properties:
+      BackupPlan:
+        BackupPlanName: "BackupPlanUqam"
+        BackupPlanRule:
+          -
+            RuleName: "RuleForDailyBackups"
+            TargetBackupVault: !Ref BackupVaultUqam
+            ScheduleExpression: "cron(0 5 ? * * *)"
+            Lifecycle:
+              DeleteAfterDays: 14
+          -
+            RuleName: "RuleForWeeklyBackups"
+            TargetBackupVault: !Ref BackupVaultUqam
+            ScheduleExpression: "cron(0 5 ? * 1 *)"
+            Lifecycle:
+              DeleteAfterDays: 28
+          -
+            RuleName: "RuleForMonthlyBackups"
+            TargetBackupVault: !Ref BackupVaultUqam
+            ScheduleExpression: "cron(0 5 1 * ? *)"
+            Lifecycle:
+              DeleteAfterDays: 365
+    DependsOn: BackupVaultUqam
+
+  TagBasedBackupSelection:
+    Type: "AWS::Backup::BackupSelection"
+    Properties:
+      BackupSelection:
+        SelectionName: "TagBasedBackupSelection"
+        IamRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSBackupDefaultServiceRole"
+        ListOfTags:
+         -
+           ConditionType: "STRINGEQUALS"
+           ConditionKey: "backup"
+           ConditionValue: "gold"
+      BackupPlanId: !Ref BackupPlanUqam
+    DependsOn: BackupPlanUqam
