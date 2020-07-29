@@ -301,14 +301,14 @@ Parameters:
     Type: String
   DatabaseInstanceType:
     AllowedValues:
-      - db.r4.large
-      - db.r4.xlarge
-      - db.r4.2xlarge
-      - db.r4.4xlarge
-      - db.r4.8xlarge
-      - db.r4.16xlarge
+      - db.r5.large
+      - db.r5.xlarge
+      - db.r5.2xlarge
+      - db.r5.4xlarge
+      - db.r5.8xlarge
+      - db.r5.16xlarge
     ConstraintDescription: Must be a valid RDS instance class.
-    Default: db.r4.large
+    Default: db.r5.large
     Description: The Amazon RDS database instance class.
     Type: String
   DatabaseMasterUsername:
@@ -479,6 +479,11 @@ Parameters:
       - cache.r3.2xlarge
       - cache.r3.4xlarge
       - cache.r3.8xlarge
+      - cache.m5.large
+      - cache.m5.xlarge
+      - cache.m5.2xlarge
+      - cache.m5.4xlarge
+      - cache.m5.8xlarge
     ConstraintDescription: Must be a valid Amazon ElastiCache node type.
     Default: cache.t2.micro
     Description: The Amazon ElastiCache cluster node type.
@@ -509,6 +514,11 @@ Parameters:
       - cache.r3.2xlarge
       - cache.r3.4xlarge
       - cache.r3.8xlarge
+      - cache.m5.large
+      - cache.m5.xlarge
+      - cache.m5.2xlarge
+      - cache.m5.4xlarge
+      - cache.m5.8xlarge
     ConstraintDescription: Must be a valid Amazon ElastiCache node type.
     Default: cache.t2.micro
     Description: The Amazon ElastiCache cluster node type.
