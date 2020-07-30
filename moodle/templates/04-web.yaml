@@ -481,8 +481,8 @@ Resources:
                 yum install -y awslogs httpd php-pgsql php-gd php-soap php-mcrypt php-intl php-mbstring php-xmlrpc php-zip
                 sed -i 's/memory_limit =.*/memory_limit = 2048M/' /etc/php.ini
                 sed -i 's/max_execution_time = 30/max_execution_time = 300/' /etc/php.ini
-                sed -i 's/post_max_size = 8M/post_max_size = 200M/' /etc/php.ini
-                sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 200M/' /etc/php.ini
+                sed -i 's/post_max_size = 8M/post_max_size = 500M/' /etc/php.ini
+                sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 500M/' /etc/php.ini
                 if [ ! -f /etc/httpd/conf.d/moodle.conf ]; then                    
                    touch /etc/httpd/conf.d/moodle.conf
                    echo 'ServerName 127.0.0.1:80' >> /etc/httpd/conf.d/moodle.conf
@@ -624,7 +624,6 @@ Resources:
                   $CFG->dbuser = json_decode($secret)->{'username'};
                   $CFG->dbpass = json_decode($secret)->{'password'};
                   $CFG->prefix = 'mdl_';
-                  $CFG->lang = '${MoodleLocale}';
                   $CFG->dboptions = array(
                     'dbpersist' => false,
                     'dbsocket' => false,
@@ -633,7 +632,7 @@ Resources:
                     'dbcollation' => 'utf8mb4_unicode_ci',
                   );
                   // Hostname definition //
-                  $hostname = '${DomainName}';
+                  $hostname = 'moodle-2020.uqam.ca';
                   if ($hostname == '') {
                     $hostwithprotocol = '${PublicAlbHostname}';
                   }
@@ -663,9 +662,9 @@ Resources:
                   //@error_reporting(E_ALL | E_STRICT);   // NOT FOR PRODUCTION SERVERS!
                   //@ini_set('display_errors', '1');         // NOT FOR PRODUCTION SERVERS!
                   // pendant tests de charge.
-                  $CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
-                  $CFG->debugdisplay = 1; 
-                  $CFG->tool_generator_users_password = 'pAzzW0rd';
+                  //$CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
+                  //$CFG->debugdisplay = 1; 
+                  //$CFG->tool_generator_users_password = 'pAzzW0rd';
 
                   date_default_timezone_set('America/Toronto');
                   $CFG->timezone = 'America/Toronto';

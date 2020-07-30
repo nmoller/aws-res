@@ -497,7 +497,6 @@ Resources:
                   $CFG->dbuser = json_decode($secret)->{'username'};
                   $CFG->dbpass = json_decode($secret)->{'password'};
                   $CFG->prefix = 'mdl_';
-                  $CFG->lang = '${MoodleLocale}';
                   $CFG->dboptions = array(
                     'dbpersist' => false,
                     'dbsocket' => false,
@@ -506,7 +505,7 @@ Resources:
                     'dbcollation' => 'utf8mb4_unicode_ci',
                   );
                   // Hostname definition //
-                  $hostname = '${DomainName}';
+                  $hostname = 'moodle-2020.uqam.ca';
                   if ($hostname == '') {
                     $hostwithprotocol = '${PublicAlbHostname}';
                   }
@@ -536,9 +535,9 @@ Resources:
                   //@error_reporting(E_ALL | E_STRICT);   // NOT FOR PRODUCTION SERVERS!
                   //@ini_set('display_errors', '1');         // NOT FOR PRODUCTION SERVERS!
                   // pendant tests de charge.
-                  $CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
-                  $CFG->debugdisplay = 1; 
-                  $CFG->tool_generator_users_password = 'pAzzW0rd';
+                  //$CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
+                  //$CFG->debugdisplay = 1; 
+                  //$CFG->tool_generator_users_password = 'pAzzW0rd';
 
                   date_default_timezone_set('America/Toronto');
                   $CFG->timezone = 'America/Toronto';
@@ -655,7 +654,10 @@ Resources:
             # on devrait prevoir une tâche pour > /var/spool/mail/root
             /var/spool/cron/apache:
               content: !Sub |
-                */7 * * * * /usr/bin/php /var/www/moodle/html/admin/cli/cron.php > /dev/null
+                */1 * * * * /usr/bin/php /var/www/moodle/html/admin/cli/cron.php > /dev/null
+                0 7,10,13,16,19,22 * * * /usr/bin/php /var/www/moodle/html/local/uqregistration/admin/cli/local_uqregistration_cron.php
+                35 1 * * * /usr/bin/php /var/www/moodle/html/local/uqregistration/admin/cli/local_uqregistration_cron.php --all
+                3 6 * * * /usr/bin/php /var/www/moodle/html/local/uqregistration/admin/cli/local_uqregistration_detruit_course.php
               mode: '000600'
               owner: apache
               group: apache
