@@ -92,6 +92,17 @@ justb4/jmeter:5.1.1 -n -t /opt/jmeter/quizTest001.jmx \
 
 https://nmoller.github.io/aws-res/jmeter/res07/
 
+### Requêtes pour faire des comparaisons dans web5
+Il y a eu un examen avec ~ 500 étudiants le samedi 20 à 9:00. Nous allons regarder les logs de apache pour avoir un estimé de la charge.
+
+```
+# comparable à ce qu'on fait dans les tests de charge
+cat ssl_access_web6_log-20200621 |grep 20/Jun/2020:09:00:08 |grep "course/view.php" |wc -l
+# plus large que ce qu'on a dans le tests
+cat ssl_access_web6_log-20200621 |grep 20/Jun/2020:09:00:06 |wc -l
+cat ssl_access_web6_log-20200621 |grep 20/Jun/2020:09:00:0 |wc -l
+```
+
 ## Sac 
 
 https://stackoverflow.com/questions/31378039/php-session-store-error-using-memcached

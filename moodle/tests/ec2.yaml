@@ -328,6 +328,7 @@ Resources:
               ignoreErrors: false
         install_cronapache:
           files:
+            # https://twitter.com/mudrd8mz/status/1266314871576186881
             /var/spool/cron/apache:
               content: !Sub |
                 */7 * * * * /usr/bin/php /var/www/moodle/html/admin/cli/cron.php

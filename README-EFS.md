@@ -32,3 +32,10 @@ test.txt
 ```
 
 Pas de problèmes pour effacer les stacks... j'avais peur de que certains choses du stack efs dependaient du stack web.
+
+## Restauration
+
+```
+mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 \
+fs-fb77fd16.efs.ca-central-1.amazonaws.com:/ /var/www/moodle/restore
+```
