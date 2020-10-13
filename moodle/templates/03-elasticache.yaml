@@ -125,13 +125,15 @@ Resources:
   ElastiCacheCluster:
     Type: AWS::ElastiCache::CacheCluster
     Properties:
-      AZMode: cross-az
       CacheNodeType: !Ref ElastiCacheNodeType
       CacheSubnetGroupName: !Ref ElastiCacheSubnetGroup
       ClusterName: !Ref ElastiCacheClusterName
       Engine: redis
-      NumCacheNodes:
-        !Ref NumberOfSubnets
+      #NumCacheNodes: !Ref NumberOfSubnets
+      NumCacheNodes: 1
+      #PreferredAvailabilityZone: 'ca-central-1'
+      #AZMode: 'cross-az'
+      EngineVersion: '3.2.10'
       Tags:
         - Key: Name
           Value: !Join [ '', [ 'Moodle / ', !Ref 'AWS::StackName' ] ]
@@ -166,4 +168,4 @@ Resources:
           ]
 Outputs:
   ElastiCacheClusterEndpointAddress:
-    Value: !GetAtt ElastiCacheCluster.ConfigurationEndpoint.Address
+    Value: !GetAtt ElastiCacheCluster.RedisEndpoint.Address

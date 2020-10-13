@@ -632,7 +632,7 @@ Resources:
                     'dbcollation' => 'utf8mb4_unicode_ci',
                   );
                   // Hostname definition //
-                  $hostname = 'moodle-2020.uqam.ca';
+                  $hostname = '';
                   if ($hostname == '') {
                     $hostwithprotocol = '${PublicAlbHostname}';
                   }
