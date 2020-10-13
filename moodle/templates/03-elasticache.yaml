@@ -129,7 +129,7 @@ Resources:
       CacheNodeType: !Ref ElastiCacheNodeType
       CacheSubnetGroupName: !Ref ElastiCacheSubnetGroup
       ClusterName: !Ref ElastiCacheClusterName
-      Engine: memcached
+      Engine: redis
       NumCacheNodes:
         !Ref NumberOfSubnets
       Tags:
