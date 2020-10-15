@@ -982,7 +982,7 @@ Resources:
           !GetAtt [ securitygroups, Outputs.ElastiCacheSecurityGroup ]
         NumberOfSubnets:
           !Ref NumberOfAZs
-      TemplateURL: https://nmtemplates.s3.ca-central-1.amazonaws.com/03-elasticache.yaml
+      TemplateURL: https://nmtemplates.s3.ca-central-1.amazonaws.com/03-redis.yaml
   applicationcache:
     Condition: DeployApplicationCache
     DependsOn: securitygroups
@@ -999,7 +999,7 @@ Resources:
           !GetAtt [ securitygroups, Outputs.ElastiCacheSecurityGroup ]
         NumberOfSubnets:
           !Ref NumberOfAZs
-      TemplateURL: https://nmtemplates.s3.ca-central-1.amazonaws.com/03-elasticache.yaml
+      TemplateURL: https://nmtemplates.s3.ca-central-1.amazonaws.com/03-redis.yaml
   webnocache:
     DependsOn: [ publicalb, rds, efsfilesystem ]
     Condition: DeployWithoutSessionCache
