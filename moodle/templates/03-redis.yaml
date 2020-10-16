@@ -140,7 +140,7 @@ Resources:
       
       Tags: 
         - Key: Name
-          Value: test
+          Value: !Ref ElastiCacheClusterName
       #TransitEncryptionEnabled: True
     ###############################################
          
