@@ -77,3 +77,6 @@ Installer moodle
 ```
 sudo -u apache php admin/cli/install_database.php --adminpass=secret --agree-license
 ```
+
+
+mood-publi-wbzwegkshu2v-1652405769.ca-central-1.elb.amazonaws.com
