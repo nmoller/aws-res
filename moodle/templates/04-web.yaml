@@ -649,7 +649,7 @@ Resources:
                   $CFG->directorypermissions = 02777;
                   $CFG->admin = 'admin';
                   // Configure Session Cache
-                  $SessionEndpoint = '${ElastiCacheClusterEndpointAddress}';
+                  $SessionEndpoint = 'redissessions.ivkrdn.ng.0001.cac1.cache.amazonaws.com';
                   if ($SessionEndpoint != '') {
                     $CFG->dbsessions = false;
                     $CFG->session_handler_class = '\core\session\redis';

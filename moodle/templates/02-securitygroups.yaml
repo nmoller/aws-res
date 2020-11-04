@@ -64,6 +64,18 @@ Resources:
       GroupDescription: Security group for ElastiCache cache cluster
       SecurityGroupIngress:
         - IpProtocol: tcp
+          FromPort: 11211
+          ToPort: 11211
+          SourceSecurityGroupId: !Ref WebSecurityGroup
+      VpcId:
+        !Ref Vpc
+
+  ElastiCacheRedis:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ElastiCache cache cluster
+      SecurityGroupIngress:
+        - IpProtocol: tcp
           FromPort: 6379
           ToPort: 6379
           SourceSecurityGroupId: !Ref WebSecurityGroup
